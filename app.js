@@ -25,12 +25,71 @@ let stats = {
   startTime: new Date()
 };
 
-// Config dosyasını asenkron olarak oku (DÜZENLENMESİ GEREKİYOR!)
+// MongoDB Connection Configuration
+const MONGODB_URI = 'mongodb+srv://cteknoloji1967:x%40PQDDW-.LF6F-k@cubistone.9bkul.mongodb.net/?retryWrites=true&w=majority&appName=Cubistone';
+
+const mongooseOptions = {
+  // Remove deprecated options
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  family: 4,
+  maxPoolSize: 50,
+  minPoolSize: 10,
+  retryWrites: true,
+  retryReads: true
+};
+// MongoDB connection with retry logic
+async function connectToMongoDB() {
+  let retries = 5;
+  
+  while (retries > 0) {
+    try {
+      console.log(chalk.yellow('📡 Attempting MongoDB connection...'));
+      await mongoose.connect(MONGODB_URI, mongooseOptions);
+      
+      console.log(chalk.green('✓ MongoDB connection successful'));
+      
+      // Set up connection event handlers
+      mongoose.connection.on('error', (err) => {
+        console.error(chalk.red('MongoDB connection error:', err));
+        updateDisplay();
+      });
+
+      mongoose.connection.on('disconnected', () => {
+        console.log(chalk.yellow('🔌 MongoDB disconnected'));
+        updateDisplay();
+      });
+
+      mongoose.connection.on('reconnected', () => {
+        console.log(chalk.green('✓ MongoDB reconnected'));
+        updateDisplay();
+      });
+
+      // Initial display update
+      updateDisplay();
+      return;
+      
+    } catch (error) {
+      console.error(chalk.red(`MongoDB connection attempt failed (${retries} retries left):`, error.message));
+      retries--;
+      
+      if (retries === 0) {
+        console.error(chalk.red('❌ Failed to connect to MongoDB after all retries'));
+        process.exit(1);
+      }
+      
+      // Wait before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, (5 - retries) * 2000));
+    }
+  }
+}
+
+// Config dosyasını asenkron olarak oku
 const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
-); 
+);
 
-// Tebex API anahtarını config dosyasından al (DÜZENLENMESİ GEREKİYOR!)
+// Tebex API anahtarını config dosyasından al
 const PRIVATE_KEY = config.tebex.privateKey;
 const PUBLIC_KEY = config.tebex.publicKey;
 const PROJECT_ID = config.tebex.projectId;
@@ -52,7 +111,7 @@ const Player = mongoose.model('Player', playerSchema);
 // Express uygulamasını oluştur
 const app = express();
 
-// CORS ayarları (DÜZENLENMESİ GEREKİYOR!)
+// CORS ayarları
 app.use(cors({
   origin: 'http://localhost:3000' // Sadece kendi frontend'inizin origin'ine izin verin!
 }));
@@ -77,9 +136,9 @@ const tebexApi = axios.create({
 });
 
 const pluginApi = axios.create({
-  baseURL: 'https://plugin.tebex.io', // Doğru Tebex API temel URL'si
+  baseURL: 'https://plugin.tebex.io',
   headers: {
-    'X-Tebex-Secret': SECRET, // Tebex API anahtarınız
+    'X-Tebex-Secret': SECRET,
     'Content-Type': 'application/json',
   },
 });
@@ -119,10 +178,10 @@ function updateDisplay() {
   // Sunucu durumu
   const serverStatus = boxen(
     chalk.green('✓ Server Online\n') +
-      chalk.blue(`◆ Port: ${PORT}\n`) +
-      chalk.yellow(`◆ MongoDB: Connected\n`) +
-      chalk.magenta(`◆ Active Users: ${stats.activeUsers.size}\n`) +
-      chalk.cyan(`◆ Uptime: ${getUptime()}`),
+    chalk.blue(`◆ Port: ${PORT}\n`) +
+    chalk.yellow(`◆ MongoDB: Connected\n`) +
+    chalk.magenta(`◆ Active Users: ${stats.activeUsers.size}\n`) +
+    chalk.cyan(`◆ Uptime: ${getUptime()}`),
     {
       padding: 1,
       margin: 0,
@@ -138,7 +197,7 @@ function updateDisplay() {
   // İstatistikler
   const statsBox = boxen(
     chalk.yellow(`📊 Total Transactions: ${stats.totalTransactions}\n`) +
-      chalk.green(`💰 Total Coins: ${stats.totalCoins}`),
+    chalk.green(`💰 Total Coins: ${stats.totalCoins}`),
     {
       padding: 1,
       margin: 0,
@@ -180,14 +239,6 @@ function updateDisplay() {
   console.log(table.toString());
 }
 
-// MongoDB bağlantısı (DÜZENLENMESİ GEREKİYOR!)
-mongoose.connect(config.mongodb.uri)
-  .then(() => {
-    console.log(chalk.green('✓ MongoDB connection successful'));
-    updateDisplay();
-  })
-  .catch(err => console.error(chalk.red('MongoDB connection error:', err)));
-
 // Tebex IP adresleri
 const TEBEX_IPS = ['18.209.80.3', '54.87.231.232'];
 
@@ -213,7 +264,7 @@ function formatUUID(id) {
   if (id.length === 32) {
     return `${id.slice(0, 8)}-${id.slice(8, 12)}-${id.slice(12, 16)}-${id.slice(16, 20)}-${id.slice(20)}`;
   }
-  return id; // Zaten UUID formatındaysa veya hatalıysa dokunma
+  return id;
 }
 
 // Tebex webhook endpoint'i
@@ -241,7 +292,6 @@ app.post('/webhook/tebex', async (req, res) => {
 
       if (Array.isArray(transaction.products)) {
         for (const productData of transaction.products) {
-          // UUID formatına çevir
           const playerId = formatUUID(transaction.customer.username.id);
           const packageId = productData.id.toString();
           const purchasedPackage = config.packages.find(p => p.tebexId === packageId);
@@ -251,12 +301,10 @@ app.post('/webhook/tebex', async (req, res) => {
             continue;
           }
 
-          // İstatistikleri güncelle
           stats.totalTransactions++;
           stats.totalCoins += purchasedPackage.amount;
           stats.activeUsers.add(playerId);
 
-          // Son işlemleri güncelle
           stats.lastTransactions.unshift({
             time: new Date(),
             player: playerId,
@@ -265,12 +313,10 @@ app.post('/webhook/tebex', async (req, res) => {
             coins: purchasedPackage.amount
           });
 
-          // Son 5 işlemi tut
           if (stats.lastTransactions.length > 5) {
             stats.lastTransactions.pop();
           }
 
-          // Oyuncu veritabanını güncelle
           let player = await Player.findOne({ playerId });
           if (!player) {
             player = new Player({ playerId });
@@ -292,10 +338,9 @@ app.post('/webhook/tebex', async (req, res) => {
   }
 });
 
-// Paketleri getiren endpoint (PROXY)
+// Paketleri getiren endpoint
 app.get('/api/packages', async (req, res) => {
   try {
-    // Tebex API'ye istek at
     const tebexResponse = await tebexApi.get(`/accounts/${PUBLIC_KEY}/packages`);
 
     if (tebexResponse.data && tebexResponse.data.data) {
@@ -314,7 +359,7 @@ app.get('/api/packages', async (req, res) => {
   }
 });
 
-// Sepet oluşturma endpoint'i (PROXY)
+// Sepet oluşturma endpoint'i
 app.post('/api/checkout', async (req, res) => {
   const { username } = req.body;
 
@@ -323,7 +368,6 @@ app.post('/api/checkout', async (req, res) => {
   }
 
   try {
-    // Tebex API'ye istek at
     const tebexResponse = await tebexApi.post(`/accounts/${PUBLIC_KEY}/baskets`, {
       username: username,
       complete_url: `http://localhost:3000`,
@@ -354,15 +398,13 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
-
-// Sepete ürün ekleme endpoint'i (PROXY)
+// Sepete ürün ekleme endpoint'i
 app.post('/api/basket/:basketId/packages', async (req, res) => {
   const { basketId } = req.params;
   const { package_id, quantity } = req.body;
 
   try {
-    // Tebex API'ye istek at
-    const tebexResponse = await tebexApi.post(`/baskets/${basketId}/packages`, {
+    await tebexApi.post(`/baskets/${basketId}/packages`, {
       package_id,
       quantity
     });
@@ -386,6 +428,7 @@ app.post('/api/basket/:basketId/packages', async (req, res) => {
   }
 });
 
+// Envanter endpoint'i
 app.get('/player/:id/inventory', async (req, res) => {
   try {
     const playerId = formatUUID(req.params.id);
@@ -396,7 +439,6 @@ app.get('/player/:id/inventory', async (req, res) => {
       return res.status(404).json({ error: 'Player not found' });
     }
 
-    // Envanterdeki ürünleri config.products listesinden ürün nesnelerine dönüştür
     const inventoryProducts = player.inventory.map(item => {
       const productConfig = config.products.find(p => p.id === item.productId);
       return {
@@ -404,11 +446,10 @@ app.get('/player/:id/inventory', async (req, res) => {
         price: productConfig.price,
         server_type: productConfig.server_type,
         product_type: productConfig.product_type,
-        purchaseDate: item.purchaseDate // Satın alma tarihini de ekle
+        purchaseDate: item.purchaseDate
       };
     });
 
-    // server_type parametresine göre filtrele
     const filteredInventory = serverType
       ? inventoryProducts.filter(product => product.server_type === serverType)
       : inventoryProducts;
@@ -421,7 +462,7 @@ app.get('/player/:id/inventory', async (req, res) => {
   }
 });
 
-// Oyuncu coin bilgisini getiren endpoint (PROXY)
+// Oyuncu coin bilgisini getiren endpoint
 app.get('/player/:id/coins', async (req, res) => {
   try {
     const playerId = formatUUID(req.params.id);
@@ -439,7 +480,7 @@ app.get('/player/:id/coins', async (req, res) => {
   }
 });
 
-// Ürün kullanma endpoint'i (PROXY)
+// Ürün kullanma endpoint'i
 app.post('/player/:id/use/:productId', async (req, res) => {
   try {
     const playerId = formatUUID(req.params.id);
@@ -458,7 +499,6 @@ app.post('/player/:id/use/:productId', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Ürünü envanterden kaldır
     player.inventory.splice(inventoryItemIndex, 1);
     await player.save();
 
@@ -470,7 +510,7 @@ app.post('/player/:id/use/:productId', async (req, res) => {
   }
 });
 
-// Ürünleri filtreleme endpoint'i (PROXY) (Bu endpoint zaten vardı, muhtemelen frontend'de kullanılmıyor)
+// Ürünleri filtreleme endpoint'i
 app.get('/products', async (req, res) => {
   try {
     const serverType = req.query.server_type;
@@ -493,7 +533,7 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// Coin ile ürün alma endpoint'i (PROXY)
+// Coin ile ürün alma endpoint'i
 app.post('/player/:id/buy/:productId', async (req, res) => {
   try {
     const playerId = formatUUID(req.params.id);
@@ -521,7 +561,6 @@ app.post('/player/:id/buy/:productId', async (req, res) => {
 
     await player.save();
 
-    // İstatistikleri güncelle
     stats.activeUsers.add(playerId);
     updateDisplay();
 
@@ -532,23 +571,20 @@ app.post('/player/:id/buy/:productId', async (req, res) => {
   }
 });
 
-// Oyuncu profili oluşturma veya kontrol etme endpoint'i (PROXY)
+// Oyuncu profili oluşturma veya kontrol etme endpoint'i
 app.post('/player/:id/create', async (req, res) => {
   try {
     const playerId = formatUUID(req.params.id);
 
-    // Oyuncu profilini veritabanında ara
     let player = await Player.findOne({ playerId });
 
-    // Oyuncu profili yoksa yeni bir profil oluştur
     if (!player) {
       player = new Player({
         playerId,
-        coins: 0, // Varsayılan olarak 0 coin ile başla
-        inventory: [] // Varsayılan olarak boş envanter ile başla
+        coins: 0,
+        inventory: []
       });
 
-      // Profili veritabanına kaydet
       await player.save();
 
       console.log(chalk.green(`✓ New player profile created for: ${playerId}`));
@@ -577,19 +613,17 @@ app.post('/player/:id/create', async (req, res) => {
   }
 });
 
-// Item transfer endpoint'i (PROXY)
+// Item transfer endpoint'i
 app.post('/player/:senderId/transfer/item/:receiverId', async (req, res) => {
   try {
     const senderId = formatUUID(req.params.senderId);
     const receiverId = formatUUID(req.params.receiverId);
     const { productId } = req.body;
 
-    // Aynı kişiye transfer kontrolü
     if (senderId === receiverId) {
       return res.status(400).json({ error: 'Cannot transfer to yourself' });
     }
 
-    // productId kontrolü
     if (!productId) {
       return res.status(400).json({ error: 'Product ID is required' });
     }
@@ -626,19 +660,17 @@ app.post('/player/:senderId/transfer/item/:receiverId', async (req, res) => {
   }
 });
 
-// Coin transfer endpoint'i (PROXY)
+// Coin transfer endpoint'i
 app.post('/player/:senderId/transfer/coins/:receiverId', async (req, res) => {
   try {
     const senderId = formatUUID(req.params.senderId);
     const receiverId = formatUUID(req.params.receiverId);
     const { amount } = req.body;
 
-    // Validate input
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
-    // Find players
     const sender = await Player.findOne({ playerId: senderId });
     const receiver = await Player.findOne({ playerId: receiverId });
 
@@ -650,7 +682,6 @@ app.post('/player/:senderId/transfer/coins/:receiverId', async (req, res) => {
       return res.status(400).json({ error: 'Insufficient coins' });
     }
 
-    // Perform transfer
     await Player.updateOne(
       { playerId: senderId },
       { $inc: { coins: -amount } }
@@ -661,10 +692,8 @@ app.post('/player/:senderId/transfer/coins/:receiverId', async (req, res) => {
       { $inc: { coins: amount } }
     );
 
-    // Log successful transfer
     console.log(`Successfully transferred ${amount} coins from ${senderId} to ${receiverId}`);
 
-    // Get updated balances
     const updatedSender = await Player.findOne({ playerId: senderId });
     const updatedReceiver = await Player.findOne({ playerId: receiverId });
 
@@ -680,8 +709,25 @@ app.post('/player/:senderId/transfer/coins/:receiverId', async (req, res) => {
   }
 });
 
-setInterval(updateDisplay, 60000);
+// Initialize MongoDB connection
+connectToMongoDB().catch(error => {
+  console.error(chalk.red('Fatal MongoDB connection error:', error));
+  process.exit(1);
+});
 
+// Add graceful shutdown for MongoDB
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log(chalk.yellow('MongoDB connection closed through app termination'));
+    process.exit(0);
+  } catch (err) {
+    console.error(chalk.red('Error during MongoDB disconnection:', err));
+    process.exit(1);
+  }
+});
+
+setInterval(updateDisplay, 60000);
 
 // Sunucuyu başlat
 const PORT = process.env.PORT || 8080;
