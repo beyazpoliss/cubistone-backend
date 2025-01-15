@@ -50,6 +50,21 @@ app.use(express.json({
   }
 }));
 
+// API anahtarı doğrulama middleware'i
+function apiKeyAuth(req, res, next) {
+  const apiKey = req.headers['x-api-key'];
+
+  if (!apiKey) {
+    return res.status(401).json({ error: 'API key is missing' });
+  }
+
+  if (apiKey !== config.apiKey) {
+    return res.status(403).json({ error: 'Invalid API key' });
+  }
+
+  next();
+}
+
 // Konsol temizleme fonksiyonu
 function clearConsole() {
   process.stdout.write('\x1Bc');
@@ -258,7 +273,7 @@ app.post('/webhook/tebex', async (req, res) => {
   }
 });
 
-app.get('/player/:id/inventory', async (req, res) => {
+app.get('/player/:id/inventory', apiKeyAuth, async (req, res) => {
   try {
     // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
@@ -293,7 +308,7 @@ app.get('/player/:id/inventory', async (req, res) => {
   }
 });
 // Coin bilgisi endpoint'i
-app.get('/player/:id/coins', async (req, res) => {
+app.get('/player/:id/coins', apiKeyAuth, async (req, res) => {
   try {
     // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
@@ -309,7 +324,7 @@ app.get('/player/:id/coins', async (req, res) => {
 });
 
 // Ürün kullanma endpoint'i (GERİ EKLENDİ)
-app.post('/player/:id/use/:productId', async (req, res) => {
+app.post('/player/:id/use/:productId', apiKeyAuth, async (req, res) => {
   try {
     // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
@@ -342,7 +357,7 @@ app.post('/player/:id/use/:productId', async (req, res) => {
 });
 
 // Ürünleri filtreleme endpoint'i
-app.get('/products', async (req, res) => {
+app.get('/products', apiKeyAuth, async (req, res) => {
   try {
     const serverType = req.query.server_type;
     const productType = req.query.product_type;
@@ -365,7 +380,7 @@ app.get('/products', async (req, res) => {
 });
 
 // Coin ile ürün alma endpoint'i
-app.post('/player/:id/buy/:productId', async (req, res) => {
+app.post('/player/:id/buy/:productId', apiKeyAuth, async (req, res) => {
   try {
     // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
@@ -405,7 +420,7 @@ app.post('/player/:id/buy/:productId', async (req, res) => {
 });
 
 // Oyuncu profili oluşturma veya kontrol etme endpoint'i
-app.post('/player/:id/create', async (req, res) => {
+app.post('/player/:id/create', apiKeyAuth, async (req, res) => {
   try {
     // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
@@ -453,7 +468,7 @@ app.post('/player/:id/create', async (req, res) => {
 });
 
 // Item transfer endpoint'i
-app.post('/player/:senderId/transfer/item/:receiverId', async (req, res) => {
+app.post('/player/:senderId/transfer/item/:receiverId', apiKeyAuth, async (req, res) => {
   try {
     const senderId = formatUUID(req.params.senderId);
     const receiverId = formatUUID(req.params.receiverId);
@@ -502,7 +517,7 @@ app.post('/player/:senderId/transfer/item/:receiverId', async (req, res) => {
   }
 });
 
-app.post('/player/:senderId/transfer/coins/:receiverId', async (req, res) => {
+app.post('/player/:senderId/transfer/coins/:receiverId', apiKeyAuth, async (req, res) => {
   try {
       const senderId = formatUUID(req.params.senderId);
       const receiverId = formatUUID(req.params.receiverId);
