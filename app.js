@@ -9,6 +9,8 @@ import figlet from 'figlet';
 import boxen from 'boxen';
 import Table from 'cli-table3';
 import moment from 'moment';
+import axios from 'axios';
+import cors from 'cors';
 
 // ES modules için __filename ve __dirname tanımlama
 const __filename = fileURLToPath(import.meta.url);
@@ -23,10 +25,17 @@ let stats = {
   startTime: new Date()
 };
 
-// Config dosyasını asenkron olarak oku
+// Config dosyasını asenkron olarak oku (DÜZENLENMESİ GEREKİYOR!)
 const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
-);
+); 
+
+// Tebex API anahtarını config dosyasından al (DÜZENLENMESİ GEREKİYOR!)
+const PRIVATE_KEY = config.tebex.privateKey;
+const PUBLIC_KEY = config.tebex.publicKey;
+const PROJECT_ID = config.tebex.projectId;
+const BASE_URL = config.tebex.baseUrl;
+const SECRET = config.tebex.secret;
 
 // Player modelini tanımla
 const playerSchema = new mongoose.Schema({
@@ -43,6 +52,11 @@ const Player = mongoose.model('Player', playerSchema);
 // Express uygulamasını oluştur
 const app = express();
 
+// CORS ayarları (DÜZENLENMESİ GEREKİYOR!)
+app.use(cors({
+  origin: 'http://localhost:3000' // Sadece kendi frontend'inizin origin'ine izin verin!
+}));
+
 // Raw body'yi saklamak için middleware
 app.use(express.json({
   verify: (req, res, buf) => {
@@ -50,20 +64,25 @@ app.use(express.json({
   }
 }));
 
-// API anahtarı doğrulama middleware'i
-function apiKeyAuth(req, res, next) {
-  const apiKey = req.headers['x-api-key'];
-
-  if (!apiKey) {
-    return res.status(401).json({ error: 'API key is missing' });
+// Tebex API İstemcisi
+const tebexApi = axios.create({
+  baseURL: BASE_URL,
+  auth: {
+    username: PROJECT_ID,
+    password: PRIVATE_KEY
+  },
+  headers: {
+    'Content-Type': 'application/json',
   }
+});
 
-  if (apiKey !== config.apiKey) {
-    return res.status(403).json({ error: 'Invalid API key' });
-  }
-
-  next();
-}
+const pluginApi = axios.create({
+  baseURL: 'https://plugin.tebex.io', // Doğru Tebex API temel URL'si
+  headers: {
+    'X-Tebex-Secret': SECRET, // Tebex API anahtarınız
+    'Content-Type': 'application/json',
+  },
+});
 
 // Konsol temizleme fonksiyonu
 function clearConsole() {
@@ -161,7 +180,7 @@ function updateDisplay() {
   console.log(table.toString());
 }
 
-// MongoDB bağlantısı
+// MongoDB bağlantısı (DÜZENLENMESİ GEREKİYOR!)
 mongoose.connect(config.mongodb.uri)
   .then(() => {
     console.log(chalk.green('✓ MongoDB connection successful'));
@@ -273,18 +292,111 @@ app.post('/webhook/tebex', async (req, res) => {
   }
 });
 
-app.get('/player/:id/inventory', apiKeyAuth, async (req, res) => {
+// Paketleri getiren endpoint (PROXY)
+app.get('/api/packages', async (req, res) => {
   try {
-    // UUID formatına çevir
+    // Tebex API'ye istek at
+    const tebexResponse = await tebexApi.get(`/accounts/${PUBLIC_KEY}/packages`);
+
+    if (tebexResponse.data && tebexResponse.data.data) {
+      const transformedPackages = tebexResponse.data.data.map(pack => ({
+        ...pack,
+        price: parseFloat(pack.total_price),
+        image: pack.image,
+      }));
+      res.json(transformedPackages);
+    } else {
+      res.status(500).json({ error: 'Failed to fetch packages' });
+    }
+  } catch (error) {
+    console.error("Failed to fetch packages:", error);
+    res.status(500).json({ error: "Failed to load store packages. Please try again later." });
+  }
+});
+
+// Sepet oluşturma endpoint'i (PROXY)
+app.post('/api/checkout', async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  try {
+    // Tebex API'ye istek at
+    const tebexResponse = await tebexApi.post(`/accounts/${PUBLIC_KEY}/baskets`, {
+      username: username,
+      complete_url: `http://localhost:3000`,
+      cancel_url: `http://localhost:3000`,
+      complete_auto_redirect: true
+    });
+
+    if (!tebexResponse.data?.data?.ident) {
+      throw new Error('Invalid basket response');
+    }
+
+    res.json({ basketId: tebexResponse.data.data.ident });
+  } catch (error) {
+    console.error('Checkout error:', error);
+    console.error('Error response:', error.response?.data);
+
+    let errorMessage = 'An error occurred during checkout. Please try again.';
+
+    if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.data?.title) {
+      errorMessage = error.response.data.title;
+    }
+
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+
+// Sepete ürün ekleme endpoint'i (PROXY)
+app.post('/api/basket/:basketId/packages', async (req, res) => {
+  const { basketId } = req.params;
+  const { package_id, quantity } = req.body;
+
+  try {
+    // Tebex API'ye istek at
+    const tebexResponse = await tebexApi.post(`/baskets/${basketId}/packages`, {
+      package_id,
+      quantity
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Add to basket error:', error);
+    console.error('Error response:', error.response?.data);
+
+    let errorMessage = 'An error occurred while adding to basket. Please try again.';
+
+    if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.data?.title) {
+      errorMessage = error.response.data.title;
+    }
+
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+app.get('/player/:id/inventory', async (req, res) => {
+  try {
     const playerId = formatUUID(req.params.id);
-    const serverType = req.query.server_type; // server_type parametresini al
+    const serverType = req.query.server_type;
 
     const player = await Player.findOne({ playerId });
     if (!player) {
       return res.status(404).json({ error: 'Player not found' });
     }
 
-    // Envanterdeki ürünleri config.products listesinden প্রোডাক্ট nesnelerine dönüştür
+    // Envanterdeki ürünleri config.products listesinden ürün nesnelerine dönüştür
     const inventoryProducts = player.inventory.map(item => {
       const productConfig = config.products.find(p => p.id === item.productId);
       return {
@@ -302,31 +414,34 @@ app.get('/player/:id/inventory', apiKeyAuth, async (req, res) => {
       : inventoryProducts;
 
     res.json(filteredInventory);
+
   } catch (error) {
     console.error(chalk.red('⚠ Inventory error:', error));
     res.status(500).json({ error: 'Server error' });
   }
 });
-// Coin bilgisi endpoint'i
-app.get('/player/:id/coins', apiKeyAuth, async (req, res) => {
+
+// Oyuncu coin bilgisini getiren endpoint (PROXY)
+app.get('/player/:id/coins', async (req, res) => {
   try {
-    // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
+
     const player = await Player.findOne({ playerId });
     if (!player) {
       return res.status(404).json({ error: 'Player not found' });
     }
+
     res.json({ coins: player.coins });
+
   } catch (error) {
     console.error(chalk.red('⚠ Coins error:', error));
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Ürün kullanma endpoint'i (GERİ EKLENDİ)
-app.post('/player/:id/use/:productId', apiKeyAuth, async (req, res) => {
+// Ürün kullanma endpoint'i (PROXY)
+app.post('/player/:id/use/:productId', async (req, res) => {
   try {
-    // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
     const productId = req.params.productId;
 
@@ -347,17 +462,16 @@ app.post('/player/:id/use/:productId', apiKeyAuth, async (req, res) => {
     player.inventory.splice(inventoryItemIndex, 1);
     await player.save();
 
-    // Burada komut çalıştırma gibi işlemler yapılabilir, ancak şu an için boş
-    // response olarak sadece mesaj gönderiyoruz
-    res.json({ message: 'Product used successfully' }); 
+    res.json({ message: 'Product used successfully' });
+
   } catch (error) {
     console.error(chalk.red('⚠ Use product error:', error));
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Ürünleri filtreleme endpoint'i
-app.get('/products', apiKeyAuth, async (req, res) => {
+// Ürünleri filtreleme endpoint'i (PROXY) (Bu endpoint zaten vardı, muhtemelen frontend'de kullanılmıyor)
+app.get('/products', async (req, res) => {
   try {
     const serverType = req.query.server_type;
     const productType = req.query.product_type;
@@ -379,10 +493,9 @@ app.get('/products', apiKeyAuth, async (req, res) => {
   }
 });
 
-// Coin ile ürün alma endpoint'i
-app.post('/player/:id/buy/:productId', apiKeyAuth, async (req, res) => {
+// Coin ile ürün alma endpoint'i (PROXY)
+app.post('/player/:id/buy/:productId', async (req, res) => {
   try {
-    // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
     const productId = req.params.productId;
 
@@ -419,10 +532,9 @@ app.post('/player/:id/buy/:productId', apiKeyAuth, async (req, res) => {
   }
 });
 
-// Oyuncu profili oluşturma veya kontrol etme endpoint'i
-app.post('/player/:id/create', apiKeyAuth, async (req, res) => {
+// Oyuncu profili oluşturma veya kontrol etme endpoint'i (PROXY)
+app.post('/player/:id/create', async (req, res) => {
   try {
-    // UUID formatına çevir
     const playerId = formatUUID(req.params.id);
 
     // Oyuncu profilini veritabanında ara
@@ -440,8 +552,7 @@ app.post('/player/:id/create', apiKeyAuth, async (req, res) => {
       await player.save();
 
       console.log(chalk.green(`✓ New player profile created for: ${playerId}`));
-      // Başarılı cevaba oluşturulan profil bilgisini ekleyelim
-      res.status(201).json({ 
+      res.status(201).json({
         message: 'Player profile created successfully',
         player: {
           playerId: player.playerId,
@@ -451,7 +562,6 @@ app.post('/player/:id/create', apiKeyAuth, async (req, res) => {
       });
     } else {
       console.log(chalk.yellow(`✓ Player profile already exists for: ${playerId}`));
-      // Oyuncu zaten varsa bilgilendirme mesajı döndürelim
       res.status(200).json({
         message: 'Player profile already exists',
         player: {
@@ -467,8 +577,8 @@ app.post('/player/:id/create', apiKeyAuth, async (req, res) => {
   }
 });
 
-// Item transfer endpoint'i
-app.post('/player/:senderId/transfer/item/:receiverId', apiKeyAuth, async (req, res) => {
+// Item transfer endpoint'i (PROXY)
+app.post('/player/:senderId/transfer/item/:receiverId', async (req, res) => {
   try {
     const senderId = formatUUID(req.params.senderId);
     const receiverId = formatUUID(req.params.receiverId);
@@ -503,8 +613,7 @@ app.post('/player/:senderId/transfer/item/:receiverId', apiKeyAuth, async (req, 
     await sender.save();
     await receiver.save();
 
-    // Başarılı cevaba daha detaylı bilgi ekleyelim
-    res.json({ 
+    res.json({
       message: 'Item transferred successfully',
       transferredItem: {
         productId: item.productId,
@@ -517,61 +626,62 @@ app.post('/player/:senderId/transfer/item/:receiverId', apiKeyAuth, async (req, 
   }
 });
 
-app.post('/player/:senderId/transfer/coins/:receiverId', apiKeyAuth, async (req, res) => {
+// Coin transfer endpoint'i (PROXY)
+app.post('/player/:senderId/transfer/coins/:receiverId', async (req, res) => {
   try {
-      const senderId = formatUUID(req.params.senderId);
-      const receiverId = formatUUID(req.params.receiverId);
-      const { amount } = req.body;
+    const senderId = formatUUID(req.params.senderId);
+    const receiverId = formatUUID(req.params.receiverId);
+    const { amount } = req.body;
 
-      // Validate input
-      if (!amount || amount <= 0) {
-          return res.status(400).json({ error: 'Invalid amount' });
-      }
+    // Validate input
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' });
+    }
 
-      // Find players
-      const sender = await Player.findOne({ playerId: senderId });
-      const receiver = await Player.findOne({ playerId: receiverId });
+    // Find players
+    const sender = await Player.findOne({ playerId: senderId });
+    const receiver = await Player.findOne({ playerId: receiverId });
 
-      if (!sender || !receiver) {
-          return res.status(404).json({ error: 'Player not found' });
-      }
+    if (!sender || !receiver) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
 
-      if (sender.coins < amount) {
-          return res.status(400).json({ error: 'Insufficient coins' });
-      }
+    if (sender.coins < amount) {
+      return res.status(400).json({ error: 'Insufficient coins' });
+    }
 
-      // Perform transfer
-      await Player.updateOne(
-          { playerId: senderId },
-          { $inc: { coins: -amount } }
-      );
+    // Perform transfer
+    await Player.updateOne(
+      { playerId: senderId },
+      { $inc: { coins: -amount } }
+    );
 
-      await Player.updateOne(
-          { playerId: receiverId },
-          { $inc: { coins: amount } }
-      );
+    await Player.updateOne(
+      { playerId: receiverId },
+      { $inc: { coins: amount } }
+    );
 
-      // Log successful transfer
-      console.log(`Successfully transferred ${amount} coins from ${senderId} to ${receiverId}`);
-      
-      // Get updated balances
-      const updatedSender = await Player.findOne({ playerId: senderId });
-      const updatedReceiver = await Player.findOne({ playerId: receiverId });
-      
-      res.json({ 
-          message: 'Coins transferred successfully',
-          senderBalance: updatedSender.coins,
-          receiverBalance: updatedReceiver.coins
-      });
+    // Log successful transfer
+    console.log(`Successfully transferred ${amount} coins from ${senderId} to ${receiverId}`);
+
+    // Get updated balances
+    const updatedSender = await Player.findOne({ playerId: senderId });
+    const updatedReceiver = await Player.findOne({ playerId: receiverId });
+
+    res.json({
+      message: 'Coins transferred successfully',
+      senderBalance: updatedSender.coins,
+      receiverBalance: updatedReceiver.coins
+    });
 
   } catch (error) {
-      console.error('⚠ Coin transfer error:', error);
-      res.status(500).json({ error: 'Server error occurred during transfer' });
+    console.error('⚠ Coin transfer error:', error);
+    res.status(500).json({ error: 'Server error occurred during transfer' });
   }
 });
 
-// Display'i her dakika güncelle
 setInterval(updateDisplay, 60000);
+
 
 // Sunucuyu başlat
 const PORT = process.env.PORT || 8080;

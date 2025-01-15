@@ -4,7 +4,11 @@
     "uri": "mongodb://localhost:27017/gamedb"
   },
   "tebex": {
-    "secret": "50e3d23189997d26f35acb1eeeaaa10a"
+    "privateKey": "e0D1Uph2SipunszEoMPtRUmFReZnqsQ1",
+    "publicKey": "wjgx-c3e5f86bc18304945901aaada4c75b0b8076a349",
+    "projectId": "1518225",
+    "baseUrl": "https://headless.tebex.io/api",
+    "secret": "cfbe8c63413e3d3506f24f602e43cb2a"
   },
   "packages": [
     {
