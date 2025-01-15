@@ -1,0 +1,10 @@
+<div class="module payments-module">
+  <div class="recent-payments">
+      {% for payment in module.payments %}
+          <img class="recent-payments__user" data-toggle="tooltip" data-html="true" title="<b>{{ payment.ign }}</b>{% if module.displayTime %}</br>{{ payment.time }}{% endif %}{% if module.displayPackage %}</br>{{ payment.name[:20] }}{% endif %}{% if module.displayPrice %}</br>{{ payment.price|money }} <small>{{ payment.currency }}</small>{% endif %}" src="{{ payment.skin }}" width="22">
+      {% else %}
+          {{ __("No recent payments to display.") }}
+      {% endfor %}
+  </div>
+  <div class="recent-payments__heading">{{ module.header }}</div>
+</div>

@@ -1,0 +1,240 @@
+{% extends "layout.html" %}
+
+{% block content %}
+	<div class="body">
+		<div class="sidebar">
+		    {% include 'navbar.twig' %}
+			{{ modules|raw }}
+		</div>	    
+		<div class="content">
+			<div class="panel panel-default">
+				<div class="panel-body">
+				    <div class="category-title {% if category.description != "" %} category-title--with-desc {% endif %}">
+				        <span class="mdi mdi-view-dashboard"></span> {{ category.name }}
+				    </div>
+				    {% if category.description != "" %}
+				    <div class="category-desc">
+				        {{ category.description|raw }}
+				    </div>
+	    			{% endif %}
+					{% if category.packages|length > 0 %}
+					    <div class="category">
+    						{% if category.displayType == "list" %}
+                                <div class="packages-list">
+									{% for package in category.packages %}
+									    <div class="listpackage">
+									        <div>
+                                              <div class="listpackage_name">{{ package.name }} 
+                                              {% if package.countdownEnds %}<div class="text-danger expire-badge">&nbsp;&nbsp;<i class="fa fa-clock-o"></i> <span class="countdown-to" data-countdown="{{ package.countdownEnds }}">{{ __("Ending Soon!") }}</span></div>{% endif %}</div>
+                                              <div class="listpackage_price">
+                                                {% if package.customPrice == false and package.price > 0 %}
+        					                        {% if package.discount.applied %}
+        					                  		    <span class="discount">{{ package.discount.original|money }}</span>
+        					                  		{% endif %}
+        											{{ package.price|money }} <small>{{ basket.currency }}</small>
+        										{% else %}
+        										    {{ __("You decide how much to pay.") }}
+        										{% endif %}
+                                              </div>
+									        </div>
+                                          <div class="d-flex gap-8 ml-auto">
+				                  			<a href="javascript::void(0);" data-remote="/package/{{ package.id }}" class="button button--icon button--primary d-inline toggle-modal"><span class="mdi mdi-exclamation-thick"></span></a>
+                                            {% if package.basket %}
+                                                {% if package.price!=0.00 or not package.disableQuantity %}
+                                                    <div class="dropdown-list d-inline">
+                                                       <div class="button button--select" data-toggle="dropdown">
+                                                          <span id="quantity-{{ package.id }}">{{ package.quantity }}</span> <span class="mdi mdi-triangle-small-down">
+                                                          </span>
+                                                       </div>
+                                                       <ul class="dropdown-menu" role="menu">
+                                                           {% for i in 1..16 %}
+                                                              <li>
+                                                                 <a atom-action="change-quantity" data-package-id="{{ package.id }}" data-quantity="{{ i }}"> {{ i }}</a>
+                                                              </li>
+                                                            {% endfor %}
+                                                       </ul>
+                                                    </div>
+                                                    {% endif %}
+        					                  			<a href="/checkout/packages/remove/{{ package.id }}" class="button button--icon button--danger"><span class="mdi mdi-minus"></span> <span class="only-desktop">{{ __("Remove") }}</span></a>
+    					                  		{% else %}
+    											    <a href="/checkout/packages/add/{{ package.id }}/single" {% if package.purchasable == false %}data-toggle="tooltip" title="{{ package.reason }}"{% endif %} class="button button--icon button--success"><span class="mdi mdi-plus"></span> <span class="only-desktop">{{ __("Buy") }}</span></a>
+											{% endif %}
+                                          </div>
+                                        </div>
+									{% endfor %}
+    						    </div>
+    						{% else %}
+    						    {% if category.slug in atom.options.stacked_categories %}
+                                
+                                    <div class="packages-stacked" id="stackedpkg"></div>
+                                    
+                                    <script>
+                                        let packages = [];
+                                        
+                                        {% for package in category.packages %}
+                                            packages.push({
+                                                id: '{{ package.id }}',
+                                                name: '{{ package.name }}',
+                                                in_basket: {{ package.basket ? 1 : 0 }},
+                                                image: '{{ package.image.url }}',
+                                                price: '{% if package.customPrice == false and package.price > 0.00 %}{% if package.discount.applied %}<span class="discount">{{ package.discount.original|money }}</span> {% endif %}{{ package.price|money }} <small>{{ basket.currency }}</small>{% endif %}'
+                                            })
+                                        {% endfor %}
+                                        
+                                        let packagesByName = packages.reduce((acc, item) => {
+                                            const name = item.name.split("|")[0].trim();
+                                            acc[name] = acc[name] ?? [] 
+                                            acc[name].push(item);
+                                            return acc;
+                                        }, {});
+                                      
+                                      for (const [name, group] of Object.entries(packagesByName)) {
+                                          let cells = '';
+                                          
+                                          group.forEach((p) => {
+                                              const action = p.in_basket ? `/checkout/packages/remove/${p.id}` : `/checkout/packages/add/${p.id}/single`;
+                                              cells += `
+                                                <a href="${action}" class="stackedpackage__cell ${p.in_basket ? 'stackedpackage__cell--remove' : '' }">
+                                                    <div class="stackedpackage__amount">${p.name.split("|")[1].trim()}</div>
+                                                    <div class="stackedpackage__price">${p.price}</div>
+                                                    <div class="stackedpackage__btn ${p.in_basket ? 'stackedpackage__btn--remove' : 'stackedpackage__btn--buy'}">
+                                                    ${p.in_basket ? 'Remove' : 'Buy'}
+                                                    </div>
+                                                </a>
+                                              `;
+                                          })
+                                          
+                                          
+                                          
+                                          const package = `
+                                            <div class="gridpackage__name">${name}</div>
+                                            <div class="stackedpackage">
+                                                <a href="javascript::void(0);" data-remote="/package/${group[0].id}" class="stackedpackage__cell toggle-modal stackedpackage__cell--image">
+                                                    <img src="${group[0].image}" data-original-title="Click for more details" class="img-responsive toggle-tooltip">
+                                                </a>
+                                                ${cells}
+                                            </div>
+                                        `;
+                                        document.getElementById("stackedpkg").innerHTML += package;
+                                    }
+                                        
+                                    </script>
+              
+    						    {% else %}
+    						    
+        						    {% if config("grid_view") == "Grid" %}
+            						    <div class="packages-grid">
+                							{% for package in category.packages %}
+                							    <div class="gridpackage">
+                							        {% if package.id in atom.badge.packages %}
+                							            <div class="package-badge">{{ atom.badge.text|raw }}</div>
+                							        {% endif %}
+                							        <div class="gridpackage__inner">
+                                                        <div class="gridpackage__image">
+                                                            <a href="javascript:void(0);" data-remote="/package/{{ package.id }}" class="toggle-modal">
+                                                                <img src="{{ package.image.url }}" class="toggle-tooltip img-responsive {% if package.image.borderless %}img-rounded{% else %}img-thumbnail{% endif %}" title="{{ __("Click for more details") }}" />
+                                                            </a>
+                                                        </div>
+                                                        <div class="gridpackage__info">
+                                                          <div class="gridpackage__text">
+                                                            <div class="gridpackage__name">{{ package.name[:20] }}
+                                                               {% if package.countdownEnds %}<br /><span class="text-danger expire-badge"><i class="fa fa-clock-o"></i> <span class="countdown-to" data-countdown="{{ package.countdownEnds }}">{{ __("Ending Soon!") }}</span></span>{% endif %}
+                                                            </div>
+                                                            <div class="gridpackage__price">
+                                                                {% if package.customPrice == false and package.price > 0.00 %}
+                    												{% if package.discount.applied %}
+                    				                  					<span class="discount">{{ package.discount.original|money }}</span>
+                    				                  				{% endif %}
+                    												{{ package.price|money }} <small>{{ basket.currency }}</small>
+                    											{% endif %}
+                    										</div>
+                                                          </div>
+                                                          <div class="d-flex gap-8 justify-center">
+            				                  			    <a href="javascript::void(0);" data-remote="/package/{{ package.id }}" class="button button--icon button--primary d-inline toggle-modal"><span class="mdi mdi-exclamation-thick"></span></a>
+                                                            {% if package.basket %}
+                                                                {% if package.price!=0.00 or not package.disableQuantity %}
+                                                                    <div class="dropdown-list d-inline">
+                                                                       <div class="button button--select" data-toggle="dropdown">
+                                                                          <span id="quantity-{{ package.id }}">{{ package.quantity }}</span> <span class="mdi mdi-triangle-small-down">
+                                                                          </span>
+                                                                       </div>
+                                                                       <ul class="dropdown-menu" role="menu">
+                                                                           {% for i in 1..16 %}
+                                                                              <li>
+                                                                                 <a atom-action="change-quantity" data-package-id="{{ package.id }}" data-quantity="{{ i }}"> {{ i }}</a>
+                                                                              </li>
+                                                                            {% endfor %}
+                                                                       </ul>
+                                                                    </div>
+                                                                {% endif %}
+                    					                  			<a href="/checkout/packages/remove/{{ package.id }}" class="button button--icon button--danger"><span class="mdi mdi-minus"></span> <span class="only-desktop">{{ __("Remove") }}</span></a>
+                					                  		{% else %}
+                											    <a href="/checkout/packages/add/{{ package.id }}/single" {% if package.purchasable == false %}data-toggle="tooltip" title="{{ package.reason }}"{% endif %} class="button button--icon button--success"><span class="mdi mdi-plus"></span> <span class="only-desktop">{{ __("Buy") }}</span></a>
+                    										{% endif %}
+                                                          </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                							{% endfor %}
+                						</div>
+            						{% else %}
+                                        <div class="packages-list">
+        									{% for package in category.packages %}
+        									    <div class="listpackage">
+                                                    <div class="listpackage__image">
+                                                        <a href="javascript:void(0);" data-remote="/package/{{ package.id }}" class="toggle-modal">
+                                                            <img src="{{ package.image.url }}" class="toggle-tooltip img-responsive {% if package.image.borderless %}img-rounded{% else %}img-thumbnail{% endif %}" title="{{ __("Click for more details") }}" />
+                                                        </a>
+                                                    </div>    									        
+        									        <div>
+                                                      <div class="listpackage_name">{{ package.name }} 
+                                                      {% if package.countdownEnds %}<div class="text-danger expire-badge">&nbsp;&nbsp;<i class="fa fa-clock-o"></i> <span class="countdown-to" data-countdown="{{ package.countdownEnds }}">{{ __("Ending Soon!") }}</span></div>{% endif %}</div>
+                                                      <div class="listpackage_price">
+                                                        {% if package.customPrice == false and package.price > 0 %}
+                					                        {% if package.discount.applied %}
+                					                  		    <span class="discount">{{ package.discount.original|money }}</span>
+                					                  		{% endif %}
+                											{{ package.price|money }} <small>{{ basket.currency }}</small>
+                										{% else %}
+                										    {{ __("You decide how much to pay.") }}
+                										{% endif %}
+                                                      </div>
+        									        </div>
+                                                  <div class="d-flex gap-8 ml-auto">
+        				                  			<a href="javascript::void(0);" data-remote="/package/{{ package.id }}" class="button button--icon button--primary d-inline toggle-modal"><span class="mdi mdi-exclamation-thick"></span></a>
+                                                    {% if package.basket %}
+                                                        {% if package.price!=0.00 or not package.disableQuantity %}
+                                                            <div class="dropdown-list d-inline">
+                                                               <div class="button button--select" data-toggle="dropdown">
+                                                                  <span id="quantity-{{ package.id }}">{{ package.quantity }}</span> <span class="mdi mdi-triangle-small-down">
+                                                                  </span>
+                                                               </div>
+                                                               <ul class="dropdown-menu" role="menu">
+                                                                   {% for i in 1..16 %}
+                                                                      <li>
+                                                                         <a atom-action="change-quantity" data-package-id="{{ package.id }}" data-quantity="{{ i }}"> {{ i }}</a>
+                                                                      </li>
+                                                                    {% endfor %}
+                                                               </ul>
+                                                            </div>
+                                                        {% endif %}
+            					                  			<a href="/checkout/packages/remove/{{ package.id }}" class="button button--icon button--danger"><span class="mdi mdi-minus"></span> <span class="only-desktop">{{ __("Remove") }}</span></a>
+        					                  		{% else %}
+        											    <a href="/checkout/packages/add/{{ package.id }}/single" {% if package.purchasable == false %}data-toggle="tooltip" title="{{ package.reason }}"{% endif %} class="button button--icon button--success"><span class="mdi mdi-plus"></span> <span class="only-desktop">{{ __("Buy") }}</span></a>
+        											{% endif %}
+                                                  </div>
+                                                </div>
+        									{% endfor %}
+            						    </div>
+            						{% endif %}
+        						{% endif %}
+    						{% endif %}
+    					</div>
+					{% else %}
+						{{ __("No packages to display in this category.") }}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

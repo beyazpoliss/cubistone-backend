@@ -1,0 +1,34 @@
+<div id="giftcard-check-modal">
+  <div class="iziModal-close" data-izimodal-close=""><span class="mdi mdi-close"></span></div>
+  <div class="panel panel-default module box-container" id="giftcardbalance">
+      <div class="panel-heading">
+          <div class="header" style="margin-top:0px;margin-bottom:0px;">{{ module.header }}</div>
+      </div>
+      <div class="panel-body content" style="width:auto;float:none;">
+          <div class="giftcardbalance" style="text-align:center;">
+                  <div id="giftcard-menu" class="d-flex gap-8">
+                      <input data-giftcard-input="" type="text" name="card_number" placeholder="{{ __("Card Number") }}" class="input giftcard-menu-back__hidden" value="{{ search }}" />
+                      <button atom-action="check-giftcard" class="button button--primary button--icon giftcard-menu-back__hidden"><i class="fa fa-arrow-right"></i> {{ __("Check") }}</button>
+                      <div id="giftcard-response" class="input input--disabled giftcard-menu-back__shown"></div>
+                      <button atom-action="back-giftcard" class="button button--logout button--icon giftcard-menu-back__shown"><i class="fa fa-arrow-left"></i> {{ __("Back") }}</button>
+                  </div>
+                 
+                  {% if search %}
+                      <div id="giftcard-data" class="d-none">
+                      {% if giftcard == false or giftcard.card_number == false %}
+                          {{ __("No card found") }}
+                      {% elseif giftcard.void == 1 %}
+                          {{ __("This gift card has been marked as void") }}
+                      {% else %}
+                           {{ __("Card balance:") }} {{ giftcard.remaining_balance }} {{ store.currency }}
+                      {% endif %}
+                      </div>
+                  {% endif %}
+                  
+                  
+                   
+          </div>
+      </div>
+  </div>
+</div>
+<script>document.getElementById("check-giftcard-btn").classList.remove("d-none")</script>

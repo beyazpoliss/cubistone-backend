@@ -1,0 +1,38 @@
+<div class="player-basket">
+  <div class="player-basket__info">
+      {% if config("store_type") == "Minecraft" %}
+      <div class="player-basket__skin">
+          <img src="https://mc-heads.net/body/{{ basket.username ? basket.ign : "Steve2" }}/right">
+      </div>
+      {% endif %}
+      <div class="player-basket__data {% if config("store_type") != "Minecraft" %} player-basket__data--other {% endif %}">
+          <div class="player-basket__name">{% if basket.username %}{{ basket.ign }}{{ config("PLAYER_BAG") }}{% else %}{{ config("GUEST_BAG") }}{% endif %}</div>
+          <div class="player-basket__contents">{{ _p(":count item for :amount :currency", basket.packages|length, {'count' : basket.packages|length, 'amount' : basket.price|money, 'currency' : basket.currency}) }}</div>
+      </div>
+      <a href="/checkout/logout" class="button button--logout ml-auto">
+          <span class="mdi mdi-logout"></span> Logout
+      </a>
+  </div>
+  <div class="basket-packages">
+      {% if basket.packages|length > 0 %}
+          {% for package in basket.packages %}
+              <div class="basket-item">
+                  <div>
+                      <div class="basket-item__name">{{ package.name[:25] }}</div>
+                      <div class="basket-item__price">{{ package.price|money }} <small>{{ basket.currency }}</small></div>
+                  </div>
+                  <a class="basket-item__remove" href="/checkout/packages/remove/{{ package.id }}"><span class="fa fa-times"></span></a>
+              </div>
+          {% endfor %}
+      {% else %}
+          <div class="cart-empty"><span class="mdi mdi-cart-outline"></span> <span>{{ config("EMPTY_CART") }}</span><small>{{ config("EMPTY_CART_DESC") }}</small></div>
+      {% endif %}
+  </div>
+  <div class="procced-to-checkout">
+    <div class="button button-mw button--shopping" atom-action="toggle-basket"><span class="mdi mdi-cart-plus"></span> {{ config("CONTINUE_SHOPPING") }}</div>
+    {% if basket.packages|length > 0 %}
+    <a href="/checkout/basket" class="button button-mw button--checkout"><span class="mdi mdi-cart"></span> {{ config("CHECKOUT") }}</a>
+    {% endif %}
+  </div>        
+  
+</div>

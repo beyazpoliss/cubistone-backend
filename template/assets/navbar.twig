@@ -1,0 +1,84 @@
+<div class="button-menu d-flex gap-8 align-center only-mobile" data-izimodal-open="#nav-modal">
+  <div class="button-menu__icon">
+      <img src="https://i.ibb.co/WfGVHXS/jqgq.png" width="64px" height="64px">
+  </div>
+  <div>
+      <div class="button-menu__heading">{{ config("START_SHOPPING") }}</div>
+      <div class="button-menu__subheading">{{ config("CLICK_TO_OPEN") }}</div>
+  </div>
+  <div class="ml-auto button-menu__hamburger">
+      <span class="mdi mdi-menu"></span>
+  </div>
+</div>
+<div class="panel only-desktop">
+  <div class="panel-heading">
+     {{ config("START_SHOPPING") }}
+  </div>
+  <div class="panel-body">
+      <div class="navigation">
+          <div class="navigation__item {% if page.category == "index" %}active{% endif %}"><a href="/">
+          {{ (attribute(atom.nav_icons, 'index') ? '<img src="'~ attribute(atom.nav_icons, 'index') ~'" class="navigation__icon">' : '')|raw }} 
+          {{ __("Home") }}
+          </a></div>
+          {% for category in store.categories %}
+            {% if category.subcategories|length > 0 %}
+              <div class="navigation__item navigation-dropdown dropdown {% if category.active %}active{% endif %}">
+                <a href="#" class="dropdown-toggle navigation__toggle" data-toggle="dropdown">
+                  {{ (attribute(atom.nav_icons, category.id) ? '<img src="'~ attribute(atom.nav_icons, category.id) ~'" class="navigation__icon">' : '')|raw }}
+                    <span>{{ category.name }}</span><i class="fa fa-caret-down"></i></a>
+                  <div class="dropdown-menu navigation-dropdown-menu">
+                    {% for subcategory in category.subcategories %}
+                      <div><a href="/category/{{ subcategory.id }}">{{ subcategory.name }}</a></div>
+                    {% endfor %}
+                  </div>
+              </div>
+            {% else %}
+              <div class="navigation__item {% if category.active %}active{% endif %}"><a href="/category/{{ category.id }}">
+              {{ (attribute(atom.nav_icons, category.id) ? '<img src="'~ attribute(atom.nav_icons, category.id) ~'" class="navigation__icon">' : '')|raw }}    
+                  {{ category.name }}</a></div>
+            {% endif %}
+          {% endfor %}
+          {% for page in store.pages %}
+              <div class="navigation__item {% if page.active %}active{% endif %}"><a href="/{{ page.slug }}">
+                  {{ (attribute(atom.nav_icons, page.slug) ? '<img src="'~ attribute(atom.nav_icons, page.slug) ~'" class="navigation__icon">' : '')|raw }}
+                  {{ page.title }}</a></div>
+          {% endfor %}
+      </div>
+  </div>
+</div>
+
+<div id="nav-modal">
+  <div class="iziModal-close" data-izimodal-close=""><span class="mdi mdi-close"></span></div>
+  <div class="panel panel-default module box-container" id="giftcardbalance">
+      
+      <div class="panel-heading">
+          <div class="header" style="margin-top:0px;margin-bottom:0px;">{{ config("START_SHOPPING") }}</div>
+      </div>
+      <div class="panel-body content" style="width:auto;float:none;">
+          {% for category in store.categories %}
+            {% if category.subcategories|length > 0 %}
+              <div class="navigation__item navigation-dropdown dropdown {% if category.active %}active{% endif %}">
+                <a href="#" class="dropdown-toggle navigation__toggle" data-toggle="dropdown">
+                  {{ (attribute(atom.nav_icons, category.id) ? '<img src="'~ attribute(atom.nav_icons, category.id) ~'" class="navigation__icon">' : '')|raw }}
+                    <span>{{ category.name }}</span><i class="fa fa-caret-down"></i></a>
+                  <div class="dropdown-menu navigation-dropdown-menu">
+                    {% for subcategory in category.subcategories %}
+                      <div><a href="/category/{{ subcategory.id }}">{{ subcategory.name }}</a></div>
+                    {% endfor %}
+                  </div>
+              </div>
+            {% else %}
+              <div class="navigation__item {% if category.active %}active{% endif %}"><a href="/category/{{ category.id }}">
+              {{ (attribute(atom.nav_icons, category.id) ? '<img src="'~ attribute(atom.nav_icons, category.id) ~'" class="navigation__icon">' : '')|raw }}    
+                  {{ category.name }}</a></div>
+            {% endif %}
+          {% endfor %}
+          {% for page in store.pages %}
+              <div class="navigation__item {% if page.active %}active{% endif %}"><a href="/{{ page.slug }}">
+                  {{ (attribute(atom.nav_icons, page.slug) ? '<img src="'~ attribute(atom.nav_icons, page.slug) ~'" class="navigation__icon">' : '')|raw }}
+                  {{ page.title }}</a></div>
+          {% endfor %}
+
+      </div>
+  </div>
+</div>

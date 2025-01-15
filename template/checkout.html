@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="body">
+  <div class="sidebar">
+    {% include 'navbar.twig' %}
+    {{ modules|raw }}
+  </div>
+  <div class="content">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="category-title">
+          <span class="mdi mdi-cart"></span> {{ __("Checkout") }}
+          <div class="ml-auto">
+            <small>{{ basket.price|money }} {{ basket.currency }}</small>
+          </div>
+        </div>
+        <div class="checkout">
+
+          <div class="checkout-packages">
+            <form method="post" action="/checkout/update">
+              <table class="table table--checkout">
+                <thead>
+                  <th></th>
+                  <th>{{ __("Name") }}</th>
+                  <th>{{ __("Package Options") }}</th>
+                  <th>{{ __("Price") }}</th>
+                  <th class="hidden-xs">{{ __("Qty") }}</th>
+                  <th>&nbsp;</th>
+                  <th></th>
+                </thead>
+                <tbody>
+                  {% for package in basket.packages %}
+                  <tr>
+                    <td class="attribute">{% if package.ign != "" %}<i class="fa fa-gift"></i>{% endif %}</td>
+                    <td class="name">
+                      {{ package.name }}
+                    </td>
+                    <td class="options hidden-xs">{% include "package_options.html" %}</td>
+                    <td class="price">{{ package.price|money }} <small>{{ basket.currency }}</small></td>
+                    <td class="quantity">
+
+                      <div class="dropdown-list d-inline">
+                        <div class="button button--select" data-toggle="dropdown" {% if package.price==0.00 or
+                          package.disableQuantity %}disabled="disabled" {% endif %}>
+                          <span id="quantity-{{ package.id }}">{{ package.quantity }}</span> <span
+                            class="mdi mdi-triangle-small-down">
+                          </span>
+                        </div>
+                        <ul class="dropdown-menu" role="menu">
+                          {% for i in 1..16 %}
+                          <li>
+                            <a atom-action="change-quantity" data-package-id="{{ package.id }}" data-quantity="{{ i }}">
+                              {{ i }}</a>
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+
+                    </td>
+                    <td>
+                        <div class="d-flex gap-8 justify-end">
+                          <a href="javascript::void(0);" data-remote="/package/{{ package.id }}"
+                            class="button button--primary toggle-modal"><i class="fa fa-info-circle"></i></a>
+                          <a href="/checkout/packages/remove/{{ package.id }}" class="button button--danger"><i
+                              class="fa fa-times"></i></a>
+                        </div>
+                    </td>
+                    <th></th>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </form>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="category-title category-title--red">
+                <span class="mdi mdi-gift"></span> {{ __("Redeem coupons / gift cards") }}
+            </div>
+            <div class="redeem">
+
+              <form method="post" action="/checkout/coupons/add">
+                <div class="d-flex gap-8">
+                  <input type="text" name="coupon" placeholder="{{ __(" Have a coupon code? Enter it here and click redeem.") }}" class="input">
+                  <button class="button button--primary button--icon">{{ __("Redeem") }} <i class="fa fa-arrow-right"></i></button>
+                </div>
+              </form>
+
+            </div>
+
+            <div class="redeemed">
+
+              {% if basket.coupons|length > 0 %}
+              <div class="checkout-packages">
+                  <table class="table table--checkout">
+                    <tbody>
+                      {% for coupon in basket.coupons %}
+                      <tr>
+                        <td></td>
+                        <td>{{ coupon.code }}</td>
+                        <td>{{ coupon.description }}</td>
+                        <td class="d-flex justify-end">
+                          <a href="/checkout/coupons/remove/{{ coupon.code }}" class="button button--danger"><i
+                              class="fa fa-times"></i></a>
+                        </td>
+                        <th></th>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+              </div>
+              {% endif %}
+
+            </div>            
+        </div>
+    </div>
+    {% if config("checkout_creator_codes") == "Enabled" %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="category-title category-title--green">
+                <span class="mdi mdi-gift"></span> {{ config("USE_CREATOR_CODE") }}
+            </div>
+
+              <form method="post" action="/creator-code/add">
+                <div class="d-flex gap-8">
+                  <input type="text" name="code" placeholder="{{ config("ENTER_CREATOR_CODE") }}" value="{{ basket.creator_code }}" {{ basket.creator_code ? 'disabled' }} class="input">
+                    {% if basket.creator_code %}
+                        <a href="/creator-code/remove" class="button button--danger button--icon">{{ config("CREATOR_CODE_REMOVE") }} <i class="fa fa-arrow-left"></i></a>
+                    {% else %}
+                        <button type="submit" class="button button--primary button--icon">{{ config("CREATOR_CODE_ADD") }} <i class="fa fa-arrow-right"></i></button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+              {% if store.useCheckout %}
+              <div class="d-flex align-center">
+                <div class="flex-1">
+                  You will be directed to our payment gateway to complete your purchase.
+                </div>
+                <div>
+                  <div class="hide">{{ privacyForm|raw }}</div>
+                  <form method="post" action="{% if basket.price > 0 %}/checkout/pay{% else %}/checkout/free{% endif %}" {%
+                    if basket.price>
+                    0 %}class="gateway"{% endif %}>
+                      <button type="submit" class="button button--success button--icon" id="purchase-button"
+                        data-loading-text="{{ __(" Loading, please wait...") }}"><span class="mdi mdi-cart"></span> {{ __("Proceed to checkout") }}</button>
+                  </form>
+                </div>
+              </div>
+              {% else %}
+                Tebex Legacy isn't supported, please use Checkout.
+              {% endif %}            
+        </div>
+    </div>
+  </div>
+</div>
+
+{% if checkout.kount %}
+<iframe width="1" height="1" frameborder="0" scrolling="no" src="{{ checkout.kount.url|raw }}">
+  <img width="1" height="1" src="{{ checkout.kount.gif|raw }}">
+</iframe>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block content %}
+	<div class="body">
+		<div class="content">
+			<div class="panel panel-default">
+				<div class="panel-heading">{{ options.package.name }}</div>
+				<div class="panel-body">
+				    <div>
+    					<form method="post">
+    
+    						{% if options.package.chooseServer %}
+    						    <div class="form-group">
+                                    <select class="form-control input-lg" name="server">
+                                        <option value="">{{ __("Please choose which server to receive this package upon") }}</option>
+                                        {% for server in options.servers %}
+    										<option value="{{ server.id }}">{{ server.name }}</option>
+    									{% endfor %}
+                                    </select>   
+                                </div>
+    						{% endif %}
+    
+    						{% if options.package.customPrice %}
+    							<div class="form-group">
+                                    <div class="input-group">
+                                      <input type="text" name="price" class="form-control input-lg" placeholder="{{ __("Please enter an amount greater than " ~ options.package.price ~ " " ~ store.currency ~ " that you'd like to pay.") }}">
+                                      <span class="input-group-addon"><small>{{ store.currency }}</small></span>
+                                    </div>
+                                </div>
+    						{% endif %}
+    
+    						{% for variable in options.variables %}
+								{% if variable.type == "dropdown" %}
+								     <div class="form-group">
+                                        <select name="variables[{{ variable.id }}]" class="form-control input-lg">
+                                            <option value="">{{ variable.description }}</option>
+    										{% for option in variable.options %}
+    											<option value="{{ option.id }}">
+    												{{ option.name }}
+    												{% if option.price > 0 %}
+    													(+{{ option.price|money }} {{ basket.currency }})
+    												{% endif %}
+    											</option>
+    										{% endfor %}
+                                        </select>   
+                                     </div> 
+                                 {% elseif variable.id == "discord_id" %}
+                                    <p>{{ __(variable.description) }}</p>
+                                    
+                                    <a href="https://ident.tebex.io/discord/?return={{ url(['fivem_id']) }}" id="login-with-discord" class="button button--icon button--primary d-block" style="text-align: left; width: 100%; position: relative;">
+                                        <span class="mdi mdi-discord"></span> {{ variable.value ?  __("Change the account") :  __("Login with Discord") }}
+                                        <span class="button__badge">{{ variable.value ? variable.discord_tag : __("Not logged in") }}</span>
+                                    </a>
+                                    
+                                    <input type="hidden" name="variables[{{ variable.id }}]" value="{{ variable.value }}" />
+                                    <br />
+                                {% else %}
+								    <div class="form-group">
+                                          <input type="text" name="variables[{{ variable.id }}]" class="form-control input-lg" placeholder="{{ variable.description }}" />
+                                    </div>
+								{% endif %}
+    						{% endfor %}
+        
+                            <div class="d-flex gap-8">
+                                  <a href="/category/{{ options.package.category }}" class="button button--danger flex-1">{{ __("Back") }}</a>
+                                  <input type="submit" value="{{ __("Continue") }}" name="submit" class="button button--success flex-1" />
+                            </div>
+
+    					</form>
+    				</div>
+				</div>
+			</div>
+		</div>
+		<div class="sidebar">
+			{{ modules|raw }}
+		</div>
+	</div>
+{% endblock %}

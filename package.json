@@ -1,0 +1,25 @@
+{
+  "name": "cubistone-backend",
+  "version": "1.0.0",
+  "description": "backend project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "beyazpolis",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@stripe/stripe-js": "^5.3.0",
+    "api-tebex": "^0.2.4",
+    "axios": "^1.6.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.4.1",
+    "cli-table3": "^0.6.5",
+    "express": "^4.21.2",
+    "figlet": "^1.8.0",
+    "moment": "^2.30.1",
+    "mongoose": "^8.9.4",
+    "node-fetch": "^3.3.2"
+  }
+}

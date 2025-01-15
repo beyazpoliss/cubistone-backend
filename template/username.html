@@ -1,0 +1,26 @@
+{% extends "layout.html" %} 
+{% block content %}
+<div class="body">
+  <div class="full-width">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        {{ __("Please enter your username to continue") }}
+      </div>
+      <div class="panel-body">
+        <span id="lg-container">
+            {% if config("store_type") == "Minecraft" %}
+                <form method="post" action="/login">
+                        <div class="d-flex gap-8">
+                            <input data-user-input="" type="text" name="ign" class="input" placeholder="{{ __("Please enter your username to continue") }}">
+                            <button class="button button--primary button--icon" type="submit">Continue <i class="fa fa-chevron-right"></i></button>
+                        </div>
+                </form>
+            {% else %}
+                {{ loginform|raw }}
+            {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

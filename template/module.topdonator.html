@@ -1,0 +1,54 @@
+<div class="panel panel-default top-donator-module module">
+  <div class="panel-heading">{{ module.header }}</div>
+  <div class="panel-body panel-body__top-customer">
+      {% if module.donor %}
+        <div class="top-customer">
+            <div class="top-customer__avatar {% if config("store_type") != "Minecraft" %} top-customer__avatar--square {% endif %}">
+                {% if config("store_type") == "Minecraft" %}
+                  <img src="https://mc-heads.net/body/{{ module.ign }}/right">
+                {% else %}
+                  <img src="{{ module.skin }}">
+                {% endif %}
+            </div>
+            <div>
+                <div class="top-donator__name">{{ module.ign }}</div>
+                <div class="top-donator__amount">
+                  {% if module.displayAmount %}
+                      {{ __("Donated") }} {{ module.total|money }} <small>{{ store.currency }}</small>
+                  {% else %}
+                      {{ __("Donated the most ") }}
+                  {% endif %}
+                  
+                  {% if module.period == "hourly" %}
+                      {{ __("this hour.") }}
+                  {% elseif module.period == "daily" %}
+                      {{ __("today.") }}
+                  {% elseif module.period == "monthly" %}
+                      {{ __("this month.") }}
+                  {% elseif module.period == "yearly" %}
+                     {{ __("this year.") }}
+                  {% else %}
+                      {{ __("this week.") }}
+                  {% endif %}
+                </div>
+            </div>
+        </div>
+      {% else %}
+        <div class="top-customer">
+            {% if config("store_type") == "Minecraft" %}
+            <div class="top-customer__avatar">
+                <img src="https://mc-heads.net/body/Steve2/right">
+            </div>
+            {% endif %}
+            <div>
+                <div class="top-donator__name">Guest</div>
+                <div class="top-donator__amount">
+                  {{ __("No recent top donator to display.") }}
+                </div>
+            </div>
+        </div>
+      {% endif %}
+  </div>
+  <div class="panel-body" id="attach-payments">
+  </div>    
+</div>

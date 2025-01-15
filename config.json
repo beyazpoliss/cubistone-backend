@@ -1,0 +1,84 @@
+{
+  "mongodb": {
+    "uri": "mongodb://localhost:27017/gamedb"
+  },
+  "tebex": {
+    "secret": "50e3d23189997d26f35acb1eeeaaa10a"
+  },
+  "packages": [
+    {
+      "tebexId": "6543556",
+      "name": "STARTER",
+      "amount": 250
+    },
+    {
+      "tebexId": "6592381",
+      "name": "BASIC",
+      "amount": 550
+    },
+    {
+      "tebexId": "6592391",
+      "name": "PLUS",
+      "amount": 1210
+    },
+    {
+      "tebexId": "6592394",
+      "name": "PREMIUM",
+      "amount": 2662
+    },
+    {
+      "tebexId": "6592395",
+      "name": "PRO",
+      "amount": 5856
+    },
+    {
+      "tebexId": "6592396",
+      "name": "ELITE",
+      "amount": 12884
+    },
+    {
+      "tebexId": "6592401",
+      "name": "ULTIMATE",
+      "amount": 28345
+    }
+  ],
+  "products": [
+    {
+      "id": "vip_overlord",
+      "price": 28345,
+      "server_type": "skyblock",
+      "product_type": "vip"
+    },         
+    {
+      "id": "vip_dragon",
+      "price": 12884,
+      "server_type": "skyblock",
+      "product_type": "vip"
+    },     
+    {
+      "id": "vip_wizard",
+      "price": 5856,
+      "server_type": "skyblock",
+      "product_type": "vip"
+    },         
+    {
+      "id": "vip_knight",
+      "price": 2662,
+      "server_type": "skyblock",
+      "product_type": "vip"
+    },        
+    {
+      "id": "vip_skeleton",
+      "price": 1210,
+      "server_type": "skyblock",
+      "product_type": "vip"
+    },    
+    {
+      "id": "vip_farmer",
+      "price": 550,
+      "server_type": "skyblock",
+      "product_type": "vip"
+    }
+  ]
+}
+

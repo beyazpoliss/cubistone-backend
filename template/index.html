@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block content %}
+	<div class="body">
+		<div class="sidebar">
+		    {% include 'navbar.twig' %}
+			{{ modules|raw }}
+		</div>
+		<div class="content">
+			<div class="panel panel-default">
+				<div class="panel-body">
+				    <div class="home-header">
+				        <div>
+				            <div class="home-header__subheading">{{ config("WELCOME") }}</div>
+				            <div class="home-header__heading">{{ store.name }}</div>
+				        </div>
+				        <div class="home-header__goal" data-toggle="tooltip" data-placement="left" title="Donation Goal">
+				            <div class="goal__progress" data-progress="0">
+				                <div class="goal__half-accent-1"></div>
+				                <div class="goal__half-accent-2"></div>
+				                <div class="goal__half-empty"></div>
+				            </div>
+				            <div class="goal__text">
+				                <div class="goal__heading">{{ config("GOAL_HEADING") }}</div>
+				                <div class="goal__subheading">{{ config("GOAL_SUBHEADING") }}</div>
+				            </div>
+				        </div>
+				    </div>
+
+					<p>
+					    
+				  		{{ index.description|raw }}
+				  		
+				  		{% if config("show_payment_methods") == "Enabled" %}
+				  		<div class="payment-methods">
+				  		    <img src="https://i.ibb.co/SwZ2723/paymentmethds.png">
+				  		    <span>
+				  		       {{ config("PAYMENTS") }}
+				  		    </span>
+				  		</div>
+				  		{% endif %}
+					</p>
+				</div>
+			</div>
+			<div id="mobile-widgets"></div>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,454 @@
+{
+  "author":"qSeek",
+  "support_email":"me@qseek.org",
+  "config":[
+     {
+        "header":"General Settings",
+        "options":[
+           {
+              "id":"background_img",
+              "name":"Body Background Image",
+              "description":"Enter the background image to show. If this is empty, the background image will be the default one.",
+              "type":"image-uploader"
+           },
+           {
+             "id": "store_type",
+             "name": "Store Type",
+             "description": "Select your store type. Other for FiveM, Ark & more.",
+             "type": "select",
+             "default": "Minecraft",
+             "values": [
+               "Minecraft",
+               "Other"
+             ]
+           },
+           {
+             "id": "language_changer_btn",
+             "name": "Language Selector Button",
+             "description": "",
+             "type": "select",
+             "default": "Disabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+             "id": "currency_changer_btn",
+             "name": "Currency Selector Button",
+             "description": "",
+             "type": "select",
+             "default": "Enabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+             "id": "show_payment_methods",
+             "name": "Show Payment Methods",
+             "description": "Show payment methods on the homepage.",
+             "type": "select",
+             "default": "Enabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+             "id": "checkout_creator_codes",
+             "name": "Checkout Creator Codes",
+             "description": "Enable Creator Codes in checkout.",
+             "type": "select",
+             "default": "Disabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+             "id": "chistmas_mode",
+             "name": "Chistmas Mode",
+             "description": "Enable Chistmas Mode on the store.",
+             "type": "select",
+             "default": "Disabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+             "id": "grid_view",
+             "name": "Image Package View",
+             "description": "Select the way the packages with images should be displayed.",
+             "type": "select",
+             "default": "Grid",
+             "values": [
+               "Grid",
+               "List"
+             ]
+           }       
+        ]
+     },
+     {
+        "header":"Minecraft Player Count",
+        "options":[
+           {
+              "id":"minecraft_server_ip",
+              "name":"Server IP",
+              "default":"mc.hypixel.net",
+              "description":"Enter your server IP - it will be used in the copy server IP section.",
+              "type":"textarea"
+           },
+           {
+              "id":"minecraft_server_port",
+              "name":"Server Port",
+              "default":"25565",
+              "description":"Enter your server PORT - it will be used in the copy server IP section.",
+              "type":"textarea"
+           }
+        ]
+     },
+     {
+        "header":"Back Button",
+        "options":[
+           {
+             "id": "back_button",
+             "name": "Back To Main Site",
+             "description": "",
+             "type": "select",
+             "default": "Enabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+              "id":"back_button_url",
+              "name":"Back Button URL",
+              "default":"https://qseek.org",
+              "description":"Enter your main site url.",
+              "type":"textarea"
+           }
+        ]
+     },
+     {
+        "header":"Announcement Settings",
+        "options":[
+           {
+             "id": "announcement-enabled",
+             "name": "Announcement",
+             "description": "Toggle the Announcement.",
+             "type": "select",
+             "default": "Enabled",
+             "values": [
+               "Enabled",
+               "Disabled"
+             ]
+           },
+           {
+              "id":"announcement_heading",
+              "name":"Heading",
+              "default":"Only <span class='atom-countdown' atom-countdown='2023-12-27'></span> left before the sale will end",
+              "description":"",
+              "type":"textarea"
+           },
+           {
+              "id":"announcement_subheading",
+              "name":"Sub Heading",
+              "default":"Checkout some of our awesome perks and take advantage of our sale!",
+              "description":"",
+              "type":"textarea"
+           }            
+        ]
+     },
+     {
+        "header":"Socials",
+        "options":[
+           {
+              "id":"socials_discord_url",
+              "name":"Discord URL",
+              "description": "Leave empty to disable",
+              "default":"https://qseek.org/discord",
+              "type":"textarea"
+           },            
+           {
+              "id":"socials_discord_id",
+              "name":"Discord Server ID",
+              "description": "You can get this by going to Server Settings > Widget, SERVER ID",
+              "default":"411965857372176395",
+              "type":"textarea"
+           },            
+           {
+              "id":"socials_twitter",
+              "name":"Twitter",
+               "description": "Set to 'none' to disable",
+              "default":"https://twitter.com",
+              "type":"textarea"
+           },            
+           {
+              "id":"socials_github",
+              "name":"GitHub",
+              "description": "Set to 'none' to disable",
+              "default":"https://github.com",
+              "type":"textarea"
+           }
+        ]
+     },
+     {
+        "header":"Footer Settings",
+        "options":[
+           {
+              "id":"column-1-title",
+              "name":"Column 1 Title",
+              "description": "",
+              "default":"About Us",
+              "type":"textarea"
+           },            
+           {
+              "id":"column-2-title",
+              "name":"Column 2 Title",
+               "description": "",
+              "default":"Links",
+              "type":"textarea"
+           },            
+           {
+              "id":"column-3-title",
+              "name":"Column 3 Title",
+               "description": "",
+              "default":"Contact Us",
+              "type":"textarea"
+           },            
+           {
+              "id":"column-1-content",
+              "name":"Column 1 Content",
+              "description": "",
+              "default":"<b>:server_name</b> is a Minecraft: Java Edition network that provides players with captivating and unique gameplay. This is the only official store for the network.",
+              "type":"textarea"
+           },            
+           {
+              "id":"column-2-content",
+              "name":"Column 2 Content",
+              "description": "",
+              "default":"<li><a href=\"/terms/checkout\">Terms</a></li>\n<li><a href=\"/terms/privacy\">Privacy</a></li>\n<li><a href=\"/terms/impressum\">Impressum</a></li>",
+              "type":"textarea"
+           },            
+           {
+              "id":"column-3-content",
+              "name":"Column 3 Content",
+               "description": "",
+              "default":"If you have any questions, concerns or want to contact us, you can do this on our discord.\n<a class=\"button button--primary\" style=\"margin-top: 8px\" href=\"\">Discord Server</a>",
+              "type":"textarea"
+           } 
+        ]
+     },
+     {
+        "header":"Language",
+        "options":[
+           {
+              "id":"COPY_IP",
+              "name":"COPY_IP",
+              "description": "",
+              "default":"IP Copied Successfully!",
+              "type":"textarea"
+           },            
+           {
+              "id":"PLAYERS_ONLINE",
+              "name":"PLAYERS_ONLINE",
+              "description": "",
+              "default":"players online",
+              "type":"textarea"
+           },            
+           {
+              "id":"LOGIN_SUCCESS",
+              "name":"LOGIN_SUCCESS",
+              "description": "",
+              "default":"You have been logged in.",
+              "type":"textarea"
+           },            
+           {
+              "id":"CLICK_TO_LOGIN",
+              "name":"CLICK_TO_LOGIN",
+              "description": "",
+              "default":"click to login",
+              "type":"textarea"
+           },            
+           {
+              "id":"GUEST_BAG",
+              "name":"GUEST_BAG",
+              "description": "",
+              "default":"Guest's Bag",
+              "type":"textarea"
+           },            
+           {
+              "id":"PLAYER_BAG",
+              "name":"PLAYER_BAG",
+              "description": "",
+              "default":"'s Bag",
+              "type":"textarea"
+           },            
+           {
+              "id":"VIEW",
+              "name":"VIEW",
+              "description": "",
+              "default":"view",
+              "type":"textarea"
+           },            
+           {
+              "id":"EMPTY_CART",
+              "name":"EMPTY_CART",
+              "description": "",
+              "default":"Your Cart Is empty!",
+              "type":"textarea"
+           },            
+           {
+              "id":"EMPTY_CART_DESC",
+              "name":"EMPTY_CART_DESC",
+              "description": "",
+              "default":"Add some items to your cart in order to checkout!",
+              "type":"textarea"
+           },            
+           {
+              "id":"ADDED_TO_CART",
+              "name":"ADDED_TO_CART",
+              "description": "",
+              "default":"Item added in cart!",
+              "type":"textarea"
+           },
+           {
+              "id":"CHECK_GIFTCARD",
+              "name":"CHECK_GIFTCARD",
+              "description": "",
+              "default":"check giftcard",
+              "type":"textarea"
+           },
+           {
+              "id":"JOIN",
+              "name":"JOIN",
+              "description": "",
+              "default":"join",
+              "type":"textarea"
+           },
+           {
+              "id":"GOAL_HEADING",
+              "name":"GOAL_HEADING",
+              "description": "",
+              "default":"Donation Goal",
+              "type":"textarea"
+           },
+           {
+              "id":"GOAL_SUBHEADING",
+              "name":"GOAL_SUBHEADING",
+              "description": "",
+              "default":"Support our Server",
+              "type":"textarea"
+           },
+           {
+              "id":"WELCOME",
+              "name":"WELCOME",
+              "description": "",
+              "default":"Welcome to the official STORE OF",
+              "type":"textarea"
+           },
+           {
+              "id":"PAYMENTS",
+              "name":"PAYMENTS",
+              "description": "",
+              "default":"+ over 45 more payment methods availlable.",
+              "type":"textarea"
+           },
+           {
+              "id":"USE_CREATOR_CODE",
+              "name":"USE_CREATOR_CODE",
+              "description": "",
+              "default":"Redeem a creator code",
+              "type":"textarea"
+           },
+           {
+              "id":"ENTER_CREATOR_CODE",
+              "name":"ENTER_CREATOR_CODE",
+              "description": "",
+              "default":"Enter a creator code",
+              "type":"textarea"
+           },
+           {
+              "id":"CREATOR_CODE_ADD",
+              "name":"CREATOR_CODE_ADD",
+              "description": "",
+              "default":"Add",
+              "type":"textarea"
+           },
+           {
+              "id":"CREATOR_CODE_REMOVE",
+              "name":"CREATOR_CODE_REMOVE",
+              "description": "",
+              "default":"Remove",
+              "type":"textarea"
+           },
+           {
+              "id":"BACK_TO_MAIN_SITE",
+              "name":"BACK_TO_MAIN_SITE",
+              "description": "",
+              "default":"back to main site",
+              "type":"textarea"
+           },
+           {
+              "id":"BACK_TO_MAIN_PAGE",
+              "name":"BACK_TO_MAIN_PAGE",
+              "description": "",
+              "default":"back to main page",
+              "type":"textarea"
+           },
+           {
+              "id":"AFFILIATE",
+              "name":"AFFILIATE",
+              "description": "",
+              "default":"We’re not affiliated with or endorsed by Mojang, AB.",
+              "type":"textarea"
+           },
+           {
+              "id":"CHECKOUT",
+              "name":"CHECKOUT",
+              "description": "",
+              "default":"Checkout",
+              "type":"textarea"
+           },
+           {
+              "id":"CONTINUE_SHOPPING",
+              "name":"CONTINUE_SHOPPING",
+              "description": "",
+              "default":"Continue Shopping",
+              "type":"textarea"
+           },
+           {
+              "id":"JOIN_DISCORD",
+              "name":"JOIN_DISCORD",
+              "description": "",
+              "default":"join discord",
+              "type":"textarea"
+           },
+           {
+              "id":"MEMBERS_ONLINE",
+              "name":"MEMBERS_ONLINE",
+              "description": "",
+              "default":"members online",
+              "type":"textarea"
+           },
+           {
+              "id":"CLICK_TO_OPEN",
+              "name":"CLICK_TO_OPEN",
+              "description": "",
+              "default":"CLICK TO OPEN",
+              "type":"textarea"
+           },
+           {
+              "id":"START_SHOPPING",
+              "name":"START_SHOPPING",
+              "description": "",
+              "default":"Start Shopping",
+              "type":"textarea"
+           }
+        ]
+     }
+  ]
+}

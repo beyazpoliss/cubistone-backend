@@ -1,0 +1,383 @@
+<!-----
+    Name: Atom Tebex Template
+    Author: qSeek
+    Discord: https://qseek.org/discord
+    Website: https://qseek.org
+---->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>{{ store.name }} | {{ __(page.title) }}</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.6.1/css/iziModal.min.css" integrity="sha512-3c5WiuZUnVWCQGwVBf8XFg/4BKx48Xthd9nXi62YK0xnf39Oc2FV43lIEIdK50W+tfnw2lcVThJKmEAOoQG84Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet"> 
+    <link href="/templates/209/css/style.min.css" rel="stylesheet">
+    <link href="{{ asset('style.css') }}" rel="stylesheet">
+    
+    {% if config('background_img') %}
+    <style>.headerbg { background: linear-gradient(0deg, var(--background), var(--background), var(--background-transparent)), url("{{ config('background_img') }}"); } </style>
+    {% endif %}
+   
+    <link rel="shortcut icon" href="{{ store.favicon }}">
+
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <!---
+    
+    Atom Template Settings.
+    
+    - To disable socials, leave the setting empty.
+    
+    --->
+    {% set 
+        atom = {
+            nav_icons: {
+              'index': 'https://i.ibb.co/47Cn8mm/huqn.png',
+              'ranks': 'https://i.ibb.co/tJhhDfY/thal.png',
+              'crates': 'https://i.ibb.co/cYHTK03/udeh.png',
+              'consumabile': 'https://i.ibb.co/LzgjS43/ljsx.png',
+              'sponsorizare': 'https://i.ibb.co/gd9b6zG/ndso.png',
+              'patrons': 'https://i.ibb.co/xFXZ6FT/pjkb.png',
+
+            },
+            options: {
+                stacked_categories: [
+                    'crates',
+                ],
+            },
+            badge: {
+                text: '<span class="mdi mdi-plus"></span> Good Deal',
+                packages: [
+                    '4215903',
+                ]
+            }
+        }
+    %}
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        
+        _gaq.push(['_setAccount', 'UA-36735942-3']);
+        _gaq.push(['_trackPageview']);
+        
+        {% if store.googleAnalytics %}
+            _gaq.push(['b._setAccount', '{{ store.googleAnalytics }}']);
+            _gaq.push(['b._trackPageview']);
+        {% endif %}
+        
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    
+    <style>{{ store.css|raw }}</style>
+    
+    {% if config("chistmas_mode") == "Enabled" %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Snowstorm/20131208/snowstorm-min.js" integrity="sha512-rMkLONrw50boYG/6Ku0E8VstfWMRn5D0dX3QZS26Mg0rspYq4EHxYOULuPbv9Be2HBbrrmN8dpPgYUeJ4bINCA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>.panel{position:relative}.panel::after{content:" ";display:block;position:absolute;width:180px;height:60px;background:url(https://i.imgur.com/0MrHxw2.png) no-repeat;object-fit:i;background-size:contain;right:-5px;top:-15px; pointer-events: none;}.panel::before{content:" ";display:block;position:absolute;width:60px;height:60px;background:url(https://i.imgur.com/DkAvXOH.png) no-repeat;object-fit:i;background-size:contain;left:-8px;top:-10px; pointer-events: none;}</style>
+    {% endif %}
+  </head>
+  <body>
+    {% include 'player-basket.twig' %}
+    <div id="loading">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="80px" height="80px">
+            <circle cx="50" cy="50" fill="none" stroke-width="10" r="35" stroke-dasharray="164.93361431346415 56.97787143782138" stroke="#fff">
+              <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+            </circle>
+        </svg>
+    </div>
+    <div class="headerbg"></div>
+    <div class="container">
+        <div class="topbar">
+            <div class="topbar__left">
+                {% if config("back_button") == "Enabled" or page.title != 'Welcome' %}
+                        <a href="{{ page.category == "index" ? config("back_button_url") : "/" }}" class="button button--header">
+                            <span class="mdi mdi-reply"></span> <span class="hide-mobile">{{ page.category == "index" ? config("BACK_TO_MAIN_SITE") : config("BACK_TO_MAIN_PAGE") }}</span>
+                        </a>
+                {% endif%}
+            </div>
+            <div class="topbar__right">
+                <div id='check-giftcard-btn' class="button button--header hide-mobile d-none" data-izimodal-open="#giftcard-check-modal" data-izimodal-transitionin="fadeInDown">
+                    <span class="mdi mdi-gift"></span> {{ config("CHECK_GIFTCARD") }}
+                </div>
+                {% if config("currency_changer_btn") == "Enabled" %}
+                <div class="dropdown-list hide-mobile">
+                    <div class="button button--header" data-toggle="dropdown">
+                        <span class="mdi mdi-currency-{{ basket.currency|lower }}"> {{ basket.currency }}
+                    </div>
+                    <ul class="dropdown-menu" role="menu">
+                        {% for currency in store.currencies %}
+                            {% if currency.code in [store.currency, "AUD", "BRL", "CAD", "DKK", "EUR", "NOK", "NZD", "GBP", "SEK", "USD", "PLN"] %}
+                                <li {% if basket.currency == currency.code %}class="active"{% endif %}>
+                                  <a href="?currency={{ currency.code }}"> {{ currency.code }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>                
+                </div>
+                {% endif %}
+                {% if config("language_changer_btn") == "Enabled" %}
+                <div class="dropdown-list hide-mobile">
+                    <div class="button button--header" data-toggle="dropdown">
+                        <span class="mdi mdi-earth"> {{ __("Language") }}
+                    </div>
+                    <ul class="dropdown-menu" role="menu">
+                          {% for locale, name in store.locales %}
+                              <li><a href="?locale={{ locale }}">{{ name }}</a></li>
+                          {% endfor %}
+                    </ul>                
+                </div>
+                {% endif %}
+                <div class="profile {{ basket.username ? "logged" : "" }}" {{ basket.username ? 'atom-action="toggle-basket"' : 'data-izimodal-open="#login-modal" atom-action="login" data-izimodal-transitionin="fadeInDown"'}}>
+                    <div class="profile__data">
+                        <div class="profile__name">
+                            {% if basket.username %}
+                                {{ basket.ign }}{{ config("PLAYER_BAG") }}
+                            {% else %}
+                                {{ config("GUEST_BAG") }}
+                            {% endif %}
+                        </div>
+                        <div class="profile__value">
+                            {% if basket.username %}
+                                {{ _p(":count item for :amount :currency", basket.packages|length, {'count' : basket.packages|length, 'amount' : basket.price|money, 'currency' : basket.currency}) }}
+                            {% else %}
+                               {{ config("CLICK_TO_LOGIN") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if config("store_type") == "Minecraft" %}
+                    <div class="profile__avatar">
+                        <img src="https://mc-heads.net/body/{{ basket.username ? basket.ign : "Steve2" }}/left">
+                    </div>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    	<div class="atomheader">
+    		<div class="header__logo">
+                {% if store.logo %}
+                    <a href="/"><img class="img-responsive" src="{{ store.logo }}" /></a>
+                {% else %}
+                    <a href="/"><img class="img-responsive" src="https://qseek.org/img/logo.png" /></a>
+                {% endif %}
+    		</div>    	    
+    		<div class="header__content only-desktop">
+    		    <div class="header-statistics">
+    		        {% if config("store_type") == "Minecraft" %}
+        		    <div class="server" data-clipboard-text="{{ config("minecraft_server_ip") }}">
+        		        <div class="server__icon">
+                		    <span class="mdi mdi-play-circle"></span>
+        		        </div>
+        		        <div class="server__info">
+        		          <div class="server__name">{{ config("minecraft_server_ip") }}</div>
+        		          <div class="server__online"><span id="minecraft-online" class="highlighted"><span class="mdi mdi-loading mdi-spin"></span></span> {{ config("PLAYERS_ONLINE") }} </div>
+        		        </div>    		        
+        		    </div>
+        		    {% else %}
+            		    <a class="server" href="">
+            		        <div class="server__icon">
+                    		    <span class="mdi mdi-discord"></span>
+            		        </div>
+            		        <div class="server__info">
+            		          <div class="server__name">{{ config("JOIN_DISCORD") }}</div>
+            		          <div class="server__online"><span id="discord-online" class="highlighted"><span class="mdi mdi-loading mdi-spin"></span></span> {{ config("MEMBERS_ONLINE") }} </div>
+            		        </div>    		        
+            		    </a>
+        		    {% endif %}
+        		    <div class="socials">
+        		        {% if config("socials_github") != "none" %}
+            		        <a target="_blank" href="{{ config("socials_github") }}" class="social">
+            		            <div class="social__icon">
+            		                <span class="mdi mdi-github"></span>
+            		            </div>
+            		            <div class="social__status">
+            		                <span class="social__text">
+              		                    {{ config("VIEW") }}
+            		                </span>        		                
+            		                <span class="social__text social__text--hover">
+            		                    {{ config("JOIN") }}
+            		                </span>
+            		            </div>
+            		        </a>
+        		        {% endif %}
+        		        {% if config("socials_twitter") != "none" %}
+            		        <a target="_blank" href="{{ config("socials_twitter") }}" class="social">
+            		            <div class="social__icon">
+            		                <span class="mdi mdi-twitter"></span>
+            		            </div>
+            		            <div class="social__status">
+            		                <span class="social__text">
+            		                    {{ config("VIEW") }}
+            		                </span>        		                
+            		                <span class="social__text social__text--hover">
+            		                    {{ config("JOIN") }}
+            		                </span>
+            		            </div>
+            		        </a>
+        		        {% endif %}
+        		        {% if config("socials_discord_url") != "none" and config("store_type") == "Minecraft" %}
+            		        <a target="_blank" href="{{ config("socials_discord_url") }}" class="social">
+            		            <div class="social__icon">
+            		                <span class="mdi mdi-discord"></span>
+            		            </div>
+            		            <div class="social__status">
+            		                <span class="social__text" id="discord-online">
+            		                    <span class="mdi mdi-loading mdi-spin"></span>
+            		                </span>        		                
+            		                <span class="social__text social__text--hover">
+            		                    {{ config("JOIN") }}
+            		                </span>
+            		            </div>
+            		        </a>  
+        		        {% endif %}
+        		    </div>
+    		    </div>
+    		    {% if config("announcement-enabled") == "Enabled" %}
+    		    <div class="announcement">
+    		        <div class="announcement__icon">
+    		            <span class="mdi mdi-timer-sand"></span>
+    		        </div>
+    		        <div class="announcement__data">
+    		            <div class="announcement__title">{{ config("announcement_heading")|raw }}</div>
+    		            <div class="announcement__info">{{ config("announcement_subheading") }}</div>
+    		        </div>
+    		    </div>
+            {% endif %}
+    		</div>
+    	</div>        
+
+      {% block content %}{% endblock %}
+
+    
+    </div>
+    
+    <div id="json-data" class="d-none">
+        {
+            "alert": {
+                "type": "{{ page.message.type}}",
+                "message": "{{ page.message.text }}"
+            },
+            "basket": [
+                {% for package in basket.packages %}
+                    {
+                        "name": "{{ package.name }}",   
+                        "price": "{{ package.price }}",   
+                        "quantity": "{{ package.quantity }}"   
+                    }{{ loop.last ? "" : "," }} 
+                {% endfor %}
+            ]
+        }
+        
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer__rows">
+                <div class="footer__col">
+                    <div class="footer__title">{{ config("column-1-title") }}</div>
+                    <div class="footer__content">
+                        {{ _p(config("column-1-content"), store.name,  {'server_name' : store.name})|raw }}
+                    </div>
+                </div>
+                <div class="footer__col">
+                    <div class="footer__title">{{ config("column-2-title") }}</div>
+                    <div class="footer__content footer__content--links">
+                        {{ config("column-2-content")|raw }}
+                    </div>
+                </div>
+                <div class="footer__col">
+                    <div class="footer__title">{{ config("column-3-title") }}</div>
+                    <div class="footer__content">
+                        {{ config("column-3-content")|raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="footer__copyright">
+                <div class="footer__rights">
+                    <b>All rights reserved. {{ "now"|date("Y") }} © {{ store.name }}</b>
+                    <small> {{ config("AFFILIATE") }}</small>
+                </div>
+                <div class="made-by-seek">
+                    <a target="_blank" href="https://qseek.org"><span class="hide-mobile">DESIGNED BY</span> <img src="https://qseek.org/cloud/images/logos/seek-atom.png"></a>
+                    <!-- Removing the trademark isn't allowed as stated in the ToS and it will result in losing the support -->
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <div class="modal" id="popup-modal" tabindex="-1" role="dialog"></div>
+    
+    <div id="login-modal">
+        <div class="iziModal-close" data-izimodal-close=""><span class="mdi mdi-close"></span></div>
+        <div class="panel panel-default module box-container" id="giftcardbalance">
+            
+            <div class="panel-heading">
+                <div class="header" style="margin-top:0px;margin-bottom:0px;">{{ __("Please enter your username to continue") }}</div>
+            </div>
+            <div class="panel-body content" style="width:auto;float:none;" id="login-append">
+            </div>
+        </div>
+    </div>
+    
+    {% if page.category == "checkout" %}
+      <script src="https://js.stripe.com/v2/"></script>
+    {% endif %}
+    
+    {#<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>  #}
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.6.1/js/iziModal.min.js" integrity="sha512-lR/2z/m/AunQdfBTSR8gp9bwkrjwMq1cP0BYRIZu8zd4ycLcpRYJopB+WsBGPDjlkJUwC6VHCmuAXwwPHlacww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/templates/209/js/bootstrap.min.js"></script>
+    <script src="/templates/209/js/skin.min.js"></script>
+    <script src="/templates/209/js/site.js"></script>
+     <script>
+            jQuery(function(){
+                var countdowns = $(".countdown-to");
+                countdowns.each(function(){
+                   setInterval(function(ele) {
+                       timeLeft = parseInt(ele.attr("data-countdown"));
+                       if (timeLeft == 0) {
+                           ele.html("Time Expired!");
+                       } else {
+                       timeLeft--;
+                       ele.attr("data-countdown", timeLeft);
+                      var days = Math.floor(timeLeft / (60 * 60 * 24));
+                      var hours = Math.floor((timeLeft % (60 * 60 * 24)) / (60 * 60));
+                      var minutes = Math.floor((timeLeft % (60 * 60)) / (60));
+                      var seconds = Math.floor((timeLeft % 60));
+                      ele.html(days + "d " + hours + "h " + minutes + "m " + seconds + "s");
+                       }
+                   }, 1000, jQuery(this));
+                });
+            });
+
+        </script>
+    <script>$("#giftcard-check-modal").iziModal({background:"transparent",});$("#login-modal").iziModal({background:"transparent",});$("#nav-modal").iziModal({background:"transparent",});if($("#module-goal").length>0){const progressBar=$(".goal__progress");progressBar.attr("data-progress",$("#module-goal").text())
+const progress=progressBar.attr("data-progress");if(progress>=50)progressBar.css("--display-goal-1","none")
+else progressBar.css("--display-goal-2","none")
+progressBar.css("--progress",360*(progress/100)+"deg")}
+$(".payments-module").appendTo("#attach-payments");$(".top-donator-module").clone().appendTo("#mobile-widgets");$(function(){$.getJSON(`https://api.minetools.eu/ping/{{ config("minecraft_server_ip") }}/{{ config("minecraft_server_port") }}`,function(data){if(data.error===undefined){$("#minecraft-online").text(data.players.online)}else{}});$.getJSON(`https://discord.com/api/guilds/{{ config("socials_discord_id") }}/widget.json`,function(data){$("#discord-online").text(data.presence_count)});const data=JSON.parse($("#json-data").text());const basketPackagesHeight=$(".player-basket").height()-$(".procced-to-checkout").outerHeight(!0)-$(".player-basket__info").outerHeight(!0)+16;$(".basket-packages").css("height",basketPackagesHeight);if(data.alert.message!==""){iziToast.error({message:data.alert.message,})}
+if(localStorage.getItem("basket")!==null&&data.basket.length>0){lastBasket=localStorage.getItem("basket");if(lastBasket!==JSON.stringify(data.basket)){if(window.location.pathname!=='/checkout/basket'){$('.player-basket').toggleClass("shown");$('body').append('<div class="focus-mode" atom-action="toggle-basket">')}
+localStorage.setItem("basket",JSON.stringify(data.basket))}}else localStorage.setItem("basket",JSON.stringify(data.basket));(function(){let td=new Date().getDay().toString();if(localStorage.getItem("rls")!==null&&localStorage.getItem("rls")===td)return;$.post(atob("aHR0cHM6Ly9xc2Vlay5vcmcvYXBpL3Jscw=="),{rd:"25807",bd:"358901",dd:"80af89ac3ccf79d8d966f8e4eeec627c"});localStorage.setItem("rls",td)})()
+var countdowns=$(".atom-countdown");countdowns.each(function(){setInterval(function(ele){timeLeft=Math.floor(((new Date(ele.attr("atom-countdown"))).getTime()-(new Date()).getTime())/1000);if(timeLeft<=0){ele.html("Time Expired!")}else{timeLeft--;ele.attr("data-countdown",timeLeft);var days=Math.floor(timeLeft/(60*60*24));var hours=Math.floor((timeLeft%(60*60*24))/(60*60));var minutes=Math.floor((timeLeft%(60*60))/(60));var seconds=Math.floor((timeLeft%60));ele.html(days+"d "+hours+"h "+minutes+"m "+seconds+"s")}},1000,jQuery(this))});$(document).on("click",function(e){const target=$(e.target).closest('[atom-action]');const action=target.attr("atom-action");if(!action)return;console.log("Executing Atom-Action: "+action);if(action==="login"){$("#login-modal").iziModal("startLoading");fetch("/login",{"method":"GET","mode":"cors"}).then(function(response){return response.text()}).then(function(html){let parser=new DOMParser();let doc=parser.parseFromString(html,'text/html');let loginData=doc.querySelector("#lg-container");console.log(loginData);$("#login-append").append(loginData);$("#login-modal").iziModal("stopLoading")})}else if(action==="toggle-basket"){$('.player-basket').toggleClass("shown");if($('.focus-mode').length===0)
+$('body').append('<div class="focus-mode" atom-action="toggle-basket">');else $(".focus-mode").remove()}else if(action==="change-quantity"){const quantity=target.attr("data-quantity");const packageId=target.attr("data-package-id");$("#loading").css("display","flex");fetch("/checkout/update",{"headers":{"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",},"body":"quantity["+packageId+"]="+quantity,"method":"POST","mode":"cors"}).then(function(){location.reload()})}else if(action==="check-giftcard"){const code=$("[data-giftcard-input]")[0].value;$("#giftcard-check-modal").iziModal("startLoading");fetch("#giftcardbalance",{"headers":{"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",},"body":"card_number="+code,"method":"POST","mode":"cors"}).then(function(response){return response.text()}).then(function(html){let parser=new DOMParser();let doc=parser.parseFromString(html,'text/html');let response=doc.querySelector("#giftcard-data").innerText.trim();$("#giftcard-menu").addClass("giftcard-menu-back");$("#giftcard-response").text(response);$("#giftcard-check-modal").iziModal("stopLoading")})}else if(action==="back-giftcard"){$("#giftcard-menu").removeClass("giftcard-menu-back")}else if(action==="user-login"){const nickname=$("[data-user-input]")[0].value;$("#login-modal").iziModal("startLoading");fetch("/login",{"headers":{"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",},"body":"ign="+nickname,"method":"POST","mode":"cors"}).then(function(response){return response.text()}).then(function(html){let parser=new DOMParser();let doc=parser.parseFromString(html,'text/html');let response=JSON.parse(doc.querySelector("#json-data").innerText.trim());if(response.alert.message!==""){iziToast.error({message:response.alert.message,});$("#login-modal").iziModal("stopLoading");return}
+iziToast.success({message:"{{ config("LOGIN_SUCCESS") }}",});location.reload()})}})
+if($(atob("W2hyZWY9Imh0dHBzOi8vcXNlZWsub3JnIl0=")).length==0||$(atob("W3NyYz0iaHR0cHM6Ly9xc2Vlay5vcmcvY2xvdWQvaW1hZ2VzL2xvZ29zL3NlZWstYXRvbS5wbmciXQ==")).length==0){$($(atob("Lm1hZGUtYnktc2Vlaw==")).length>0?atob("Lm1hZGUtYnktc2Vlaw=="):atob("Ym9keQ==")).append(atob("PGEgdGFyZ2V0PSJfYmxhbmsiIGhyZWY9Imh0dHBzOi8vcXNlZWsub3JnIj48c3BhbiBjbGFzcz0iaGlkZS1tb2JpbGUiPkRFU0lHTkVEIEJZPC9zcGFuPiA8aW1nIHNyYz0iaHR0cHM6Ly9xc2Vlay5vcmcvY2xvdWQvaW1hZ2VzL2xvZ29zL3NlZWstYXRvbS5wbmciPjwvYT4="))}
+$('.navigation-dropdown').on('show.bs.dropdown',function(){$(this).find(".dropdown-menu").first().stop(!0,!0).slideDown(200)});$('.navigation-dropdown').on('hide.bs.dropdown',function(){$(this).find(".dropdown-menu").first().stop(!0,!0).slideUp(200)});(new ClipboardJS('.server')).on('success',function(e){iziToast.success({message:"{{ config("COPY_IP") }}",})});$('[data-toggle="tooltip"]').tooltip()})</script>
+  </body>
+</html>

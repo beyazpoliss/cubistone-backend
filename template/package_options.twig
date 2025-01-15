@@ -1,0 +1,6 @@
+{% for option in package.options %}
+    <div class="package-options">
+        <div class="pull-left"><strong>{{ option.name }}</strong></div>
+        <div class="pull-right">{{ option.value|raw }}</div>
+    </div>
+{% endfor %}
